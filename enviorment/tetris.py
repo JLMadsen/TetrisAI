@@ -78,6 +78,9 @@ class Tetris():
         done = False
         info = ''
 
+        # for checking
+        next_position = copy.deepcopy(self.current_shape)
+
         if action == Action.DOWN:
             print((valid := self.check_collision_down()))
 
