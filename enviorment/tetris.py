@@ -19,6 +19,11 @@ class Tetris():
 
     def __init__(self):
         
+        self.config = {
+            'hard_drop': 1,
+            'gravity': 0    
+        }
+        
         self.cell_size = 25
         self.margin_top = 40
         self.margin_left = 40
@@ -35,7 +40,7 @@ class Tetris():
         self.clock = pg.time.Clock()
         self.screen.fill(Color.BLACK)
 
-        self.start_position = [3, 0]
+        self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
 
         self.current_piece = 3
@@ -57,12 +62,12 @@ class Tetris():
         return [[y-lower_y+offset[0], x-lower_x+offset[1]] for y, x in blocks]
 
     # for current state
-    def check_collision_down(self):
+    def check_collision_down(self, shape):
 
         cells_under = None
 
         try:
-            cells_under = [self.state[y+1][x] for y, x in self.current_shape]
+            cells_under = [self.state[y+1][x] for y, x in shape]
         except:
             return True
 
@@ -100,13 +105,24 @@ class Tetris():
 
         if action == Action.DOWN:
 
-            pass
-            collision = self.check_collision_down()
-            
-            if not collision:
-                next_position = [[y+1, x] for y, x in next_position]
+            if self.config['hard_drop']:
+
+                while not placed:
+                    collision = self.check_collision_down(self.current_shape)
+
+                    if not collision:
+                        next_position = [[y+1, x] for y, x in next_position]
+                    else:
+                        placed = True
+
+                    self.current_shape = next_position
             else:
-                placed = True
+                collision = self.check_collision_down(self.current_shape)
+
+                if not collision:
+                    next_position = [[y+1, x] for y, x in next_position]
+                else:
+                    placed = True
 
         elif action == Action.LEFT:
             next_position = [[y, x-1] for y, x in next_position]
@@ -132,13 +148,14 @@ class Tetris():
             # do nothing
             pass
         
-        # go down one tile after all moves
-        collision = self.check_collision_down()
+        if self.config['gravity']:
+            # go down one tile after all moves
+            collision = self.check_collision_down(self.current_shape)
 
-        if not collision:
-            next_position = [[y+1, x] for y, x in next_position]
-        else:
-            placed = True
+            if not collision:
+                next_position = [[y+1, x] for y, x in next_position]
+            else:
+                placed = True
 
         if placed:
             self.place_current_shape()
@@ -151,7 +168,6 @@ class Tetris():
     def reset(self):
 
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
-        self.state[8][8] = 1
 
         return self.state
 

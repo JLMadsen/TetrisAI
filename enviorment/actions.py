@@ -4,6 +4,6 @@ class Action:
     ROTATE = 1
     LEFT   = 2
     RIGHT  = 3
-    DOWN   = 4
+    DOWN   = 4 # hard drop?
 
     ALL = [WAIT, ROTATE, LEFT, RIGHT, DOWN]
