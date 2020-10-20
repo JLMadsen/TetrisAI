@@ -39,29 +39,40 @@ class Tetris():
         self.start_position = [3, 0]
         self.position = copy.deepcopy(self.start_position)
 
-        self.current_shape = self.get_blocks_from_shape(Shape.T[0])
+        self.current_piece = 2
+        self.current_rotation = 1
+        self.current_shape = self.get_blocks_from_shape(Shape.ALL[self.current_piece][self.current_rotation], self.start_position)
         print('curr',self.current_shape)
 
-    def get_blocks_from_shape(self, shape):
+    def get_blocks_from_shape(self, shape, offset=[0, 0]):
         blocks = []
 
         for i, row in enumerate(shape):
             for j, cell in enumerate(row):
                 if cell != '0':
-                    blocks.append([j+self.start_position[0], i+self.start_position[1]])
+                    blocks.append([j, i])
 
-        return blocks
+        # normalize
+        lower_y = min([y for y, x in blocks])
+        lower_x = min([x for y, x in blocks])
 
+        return [[y-lower_y+offset[0], x-lower_x+offset[1]] for y, x in blocks]
+
+    # for current state
     def check_collision_down(self):
-        for i, row in enumerate(self.current_shape):
-            for j, cell in enumerate(row):
 
-                next_cell = self.state[i+self.position[0]][j+self.position[1]]
+        cells_under = None
 
-                if next_cell != 0:
-                    return False
+        try:
+            cells_under = [self.state[y+1][x] for y, x in self.current_shape]
+        except:
+            return True
 
-        return True
+        for cell in cells_under:
+            if cell == 1:
+                return True
+        
+        return False
 
     def next_shape(self):
         return Shape.ALL[random.randint(0, len(Shape.ALL)-1)]
@@ -82,30 +93,30 @@ class Tetris():
         next_position = copy.deepcopy(self.current_shape)
 
         if action == Action.DOWN:
-            print((valid := self.check_collision_down()))
 
-            if(valid):
-                self.position[1] += 1
-
-            return
+            collision = self.check_collision_down()
+            
+            if not collision:
+                next_position = [[y+1, x] for y, x in next_position]
+            else:
+                done = True
 
         elif action == Action.LEFT:
-            self.position[0] -= 1
-            self.position[1] += 1
-            return
+            next_position = [[y, x-1] for y, x in next_position]
 
         elif action == Action.RIGHT:
-            self.position[0] += 1
-            self.position[1] += 1
-            return
+            next_position = [[y, x+1] for y, x in next_position]
 
         elif action == Action.ROTATE:
-            self.position[1] += 1
-            return
+            self.current_rotation = (self.current_rotation + 1) % len(Shape.ALL[self.current_piece])
+            new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
+            next_position = self.get_blocks_from_shape(new_rotation, self.current_shape[0])
 
         elif action == Action.WAIT:
-            self.position[1] += 1
-            return
+            
+            idk = 1
+
+        self.current_shape = next_position
 
         return new_state, reward, done, info
 
@@ -133,8 +144,8 @@ class Tetris():
 
         for block in self.current_shape:
 
-            rect = pg.Rect(self.margin_left + block[0] * self.cell_size, 
-                            self.margin_top + block[1] * self.cell_size, 
+            rect = pg.Rect(self.margin_left + block[1] * self.cell_size, 
+                            self.margin_top + block[0] * self.cell_size, 
                             self.cell_size, 
                             self.cell_size)
 

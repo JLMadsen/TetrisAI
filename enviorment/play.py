@@ -20,7 +20,9 @@ def main():
         except:
             return
 
-        env.step(action)
+        observation, reward, done, info = env.step(action)
+        if done:
+            print('Done')
         env.render()
 
 
