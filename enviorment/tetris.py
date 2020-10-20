@@ -20,16 +20,17 @@ class Tetris():
     def __init__(self):
         
         self.config = {
-            'hard_drop': 1,
-            'gravity': 0    
+            'hard_drop': 1, # Action.DOWN goes all the way down
+            'gravity': 0    # Piece moves down after all moves
         }
         
         self.cell_size = 25
-        self.margin_top = 40
+        self.margin_top = 40  # margin for game grid
         self.margin_left = 40
 
         self.window_height = self.window_width = 600
         
+        # Standard Tetris layout
         self.game_rows = 20
         self.game_columns = 10
         
@@ -43,9 +44,13 @@ class Tetris():
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
 
-        self.current_piece = 3
-        self.current_rotation = 1
-        self.current_shape = self.get_blocks_from_shape(Shape.ALL[self.current_piece][self.current_rotation], self.start_position)
+    def reset(self):
+        self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
+        
+        # Start position
+        self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
+
+        return self.state
 
     def get_blocks_from_shape(self, shape, offset=[0, 0]):
         blocks = []
@@ -83,7 +88,7 @@ class Tetris():
         return Shape.ALL[self.current_piece][self.current_rotation]
 
     def place_current_shape(self):
-        
+                
         for block in self.current_shape:
 
             self.state[block[0]][block[1]] = 1
@@ -164,12 +169,6 @@ class Tetris():
 
         # TODO format state + shape for DQN model
         return new_state, reward, done, info
-
-    def reset(self):
-
-        self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
-
-        return self.state
 
     def render(self):
         
