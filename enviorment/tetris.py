@@ -15,6 +15,7 @@ NB! MARIUS, STATE != OBSERVATION
 # TODO render score og div info
 # Felles
 # TODO diskuter config, mtp gravity (realtime game til turnbased)
+# TODO Vise flere farger på figurer
 
 import math
 import random
