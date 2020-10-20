@@ -16,6 +16,7 @@ NB! MARIUS, STATE != OBSERVATION
 # Felles
 # TODO diskuter config, mtp gravity (realtime game til turnbased)
 # TODO Vise flere farger på figurer
+# TODO fikse rotering, evt velge en blokk som formen roterer rundt
 
 import math
 import random
@@ -239,11 +240,17 @@ class Tetris():
             pg.draw.rect(self.screen, Shape.COLORS[4], rect, 0)
 
         # draw info
-        text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
-        textRect = text.get_rect() 
-        textRect.center = (self.info_margin_left, 100) 
-        self.screen.blit(text, textRect) 
-
+        score_text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
+        score_textRect = score_text.get_rect() 
+        score_textRect.center = (self.info_margin_left, 100)
+        
+        highscore_text = self.font.render(("Highscore: "+ str(self.highscore)), 1, Color.WHITE)
+        highscore_textRect = highscore_text.get_rect() 
+        highscore_textRect.center = (self.info_margin_left, 140) 
+        
+        self.screen.blit(score_text, score_textRect) 
+        self.screen.blit(highscore_text, highscore_textRect)
+         
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
