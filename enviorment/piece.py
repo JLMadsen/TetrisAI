@@ -1,3 +1,11 @@
+"""
+For editing current shape
+
+keep track of origo (reference point) of shape
+and relative blocks
+
+"""
+
 class Piece:
     
     def __init__(self, shape):
