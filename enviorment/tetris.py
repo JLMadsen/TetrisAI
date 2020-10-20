@@ -1,3 +1,11 @@
+"""
+STATE = GAME STATE
+OBSERVATION = OBSERVATION
+
+NB! MARIUS, STATE != OBSERVATION
+
+"""
+
 import math
 import random
 import pygame as pg
@@ -7,7 +15,8 @@ from shapes import Shape
 from colors import Color
 from piece import Piece
 
-Piece(Shape.T[0])
+a = Piece(Shape.T[0])
+print(a.all_blocks())
 
 class Tetris():
 

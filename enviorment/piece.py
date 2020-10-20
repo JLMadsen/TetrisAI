@@ -27,8 +27,8 @@ class Piece:
                 elif cell != '0':
                     self.relative.append([i - self.origo[0], j - self.origo[1]])
 
-        print(self.origo)
-        print(self.relative)
+    def all_blocks(self):
+        return self.relative + [self.origo]
 
 if __name__ == "__main__":
     from play import main
