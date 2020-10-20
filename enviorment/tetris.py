@@ -9,14 +9,12 @@ NB! MARIUS, STATE != OBSERVATION
 import math
 import random
 import pygame as pg
+import copy
 
 from actions import Action
 from shapes import Shape
 from colors import Color
 from piece import Piece
-
-a = Piece(Shape.T[0])
-print(a.all_blocks())
 
 class Tetris():
 
@@ -38,8 +36,21 @@ class Tetris():
         self.clock = pg.time.Clock()
         self.screen.fill(Color.BLACK)
 
-        self.current_shape = Shape.T[0]
-        self.position = [3, 0]
+        self.start_position = [3, 0]
+        self.position = copy.deepcopy(self.start_position)
+
+        self.current_shape = self.get_blocks_from_shape(Shape.T[0])
+        print('curr',self.current_shape)
+
+    def get_blocks_from_shape(self, shape):
+        blocks = []
+
+        for i, row in enumerate(shape):
+            for j, cell in enumerate(row):
+                if cell != '0':
+                    blocks.append([j+self.start_position[0], i+self.start_position[1]])
+
+        return blocks
 
     def check_collision_down(self):
         for i, row in enumerate(self.current_shape):
@@ -52,11 +63,11 @@ class Tetris():
 
         return True
 
-
-
-
     def next_shape(self):
-        return Shape.ALL[random.randint(0, len(Shape.ALL))]
+        return Shape.ALL[random.randint(0, len(Shape.ALL)-1)]
+
+    def validate_next_position(self, nxt):
+        pass
 
     def step(self, action):
         
@@ -98,7 +109,7 @@ class Tetris():
     def reset(self):
 
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
-        self.state[8][8] = 1
+        self.state[1][0] = 1
 
         return self.state
 
@@ -117,18 +128,14 @@ class Tetris():
                 pg.draw.rect(self.screen, color, rect, 0)
                 pg.draw.rect(self.screen, Color.GRAY, rect, 1)
 
-        for i, row in enumerate(self.current_shape):
-            for j, cell in enumerate(row):
+        for block in self.current_shape:
 
-                if cell == '0':
-                    continue
+            rect = pg.Rect(self.margin_left + block[0] * self.cell_size, 
+                            self.margin_top + block[1] * self.cell_size, 
+                            self.cell_size, 
+                            self.cell_size)
 
-                rect = pg.Rect(self.margin_left + (j + self.position[0]) * self.cell_size, 
-                               self.margin_top + (i + self.position[1]) * self.cell_size, 
-                               self.cell_size, 
-                               self.cell_size)
-
-                pg.draw.rect(self.screen, Shape.COLORS[4], rect, 0)
+            pg.draw.rect(self.screen, Shape.COLORS[4], rect, 0)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
