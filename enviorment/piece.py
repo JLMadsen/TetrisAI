@@ -1,4 +1,6 @@
 """
+Not used currently
+
 For editing current shape
 
 keep track of origo (reference point) of shape

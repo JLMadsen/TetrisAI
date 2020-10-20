@@ -14,7 +14,6 @@ import copy
 from actions import Action
 from shapes import Shape
 from colors import Color
-from piece import Piece
 
 class Tetris():
 
@@ -39,7 +38,7 @@ class Tetris():
         self.start_position = [3, 0]
         self.position = copy.deepcopy(self.start_position)
 
-        self.current_piece = 2
+        self.current_piece = 3
         self.current_rotation = 1
         self.current_shape = self.get_blocks_from_shape(Shape.ALL[self.current_piece][self.current_rotation], self.start_position)
         print('curr',self.current_shape)
@@ -108,7 +107,7 @@ class Tetris():
             next_position = [[y, x+1] for y, x in next_position]
 
         elif action == Action.ROTATE:
-            self.current_rotation = (self.current_rotation + 1) % len(Shape.ALL[self.current_piece])
+            self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
             new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
             next_position = self.get_blocks_from_shape(new_rotation, self.current_shape[0])
 
