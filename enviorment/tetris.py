@@ -3,8 +3,15 @@ STATE = GAME STATE
 OBSERVATION = OBSERVATION
 
 NB! MARIUS, STATE != OBSERVATION
-
 """
+# oversikt
+# TODO Check collision for left action, både for blokker og out-of-bounds
+# TODO Check collision for Right action, både for blokker og out-of-bounds
+# TODO Check collision for Rotate action, både for blokker og out-of-bounds
+# TODO sjekk om rad blir fullført, reward, og flytt alle blokker over ned
+# TODO sjekk om "spawn" er blokkert, envtuelt tap
+# TODO render score og div info
+# TODO diskuter config, mtp gravity (realtime game til turnbased)
 
 import math
 import random
