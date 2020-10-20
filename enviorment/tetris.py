@@ -5,17 +5,21 @@ OBSERVATION = OBSERVATION
 NB! MARIUS, STATE != OBSERVATION
 """
 # oversikt
+# Marius
 # TODO Check collision for left action, både for blokker og out-of-bounds
 # TODO Check collision for Right action, både for blokker og out-of-bounds
 # TODO Check collision for Rotate action, både for blokker og out-of-bounds
+# Jakob
 # TODO sjekk om rad blir fullført, reward, og flytt alle blokker over ned
 # TODO sjekk om "spawn" er blokkert, envtuelt tap
 # TODO render score og div info
+# Felles
 # TODO diskuter config, mtp gravity (realtime game til turnbased)
 
 import math
 import random
 import pygame as pg
+import pygame.font
 import copy
 
 from actions import Action
@@ -34,6 +38,7 @@ class Tetris():
         self.cell_size = 25
         self.margin_top = 40  # margin for game grid
         self.margin_left = 40
+        self.info_margin_left = 450
 
         self.window_height = self.window_width = 600
         
@@ -47,15 +52,24 @@ class Tetris():
         self.screen = pg.display.set_mode((self.window_height, self.window_width))
         self.clock = pg.time.Clock()
         self.screen.fill(Color.BLACK)
+        self.font = pygame.font.Font(None, 36)
 
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
+        self.highscore = 0
+        self.score = None
 
     def reset(self):
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
         
         # Start position
         self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
+        
+        if self.score is not None:
+            if self.score > self.highscore:
+                self.highscore = score
+        
+        self.score = 0
 
         return self.state
 
@@ -93,15 +107,23 @@ class Tetris():
         self.current_piece = random.randint(0, len(Shape.ALL)-1)
         self.current_rotation = 0
         return Shape.ALL[self.current_piece][self.current_rotation]
+    
+    def check_cleared_lines(self):
+        reward = 0
+        
+        for i, row in enumerate(self.state):
+            cleared = 0 not in row
+            
+            if cleared:
+                del self.state[i] # magi elns, vet ikke. men det funker fjell
+                self.state.insert(0, [0 for _ in range(self.game_columns)])
+                reward += 1
 
-    def place_current_shape(self):
-                
-        for block in self.current_shape:
-
-            self.state[block[0]][block[1]] = 1
-
-        self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
-
+        return reward
+    
+    def check_loss(self):
+        return 1 in [self.state[y][x] for y, x in self.current_shape]
+            
     def step(self, action):
         
         old_state = self.state
@@ -157,8 +179,13 @@ class Tetris():
             # If collision, next position = current position
 
         elif action == Action.WAIT:
-            # do nothing
-            pass
+            if not self.config['gravity']:
+                collision = self.check_collision_down(self.current_shape)
+
+                if not collision:
+                    next_position = [[y+1, x] for y, x in next_position]
+                else:
+                    placed = True
         
         if self.config['gravity']:
             # go down one tile after all moves
@@ -169,15 +196,24 @@ class Tetris():
             else:
                 placed = True
 
+        # if placed, update state and get new shape
         if placed:
-            self.place_current_shape()
+            for block in self.current_shape:
+                self.state[block[0]][block[1]] = 1
+                
+            self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
+            done = self.check_loss()
         else:
             self.current_shape = next_position
+            
+        reward += self.check_cleared_lines()
+        self.score += reward
 
         # TODO format state + shape for DQN model
         return new_state, reward, done, info
 
     def render(self):
+        self.screen.fill(Color.BLACK)
         
         for i, row in enumerate(self.state):
             for j, cell in enumerate(row):
@@ -200,6 +236,12 @@ class Tetris():
                             self.cell_size)
 
             pg.draw.rect(self.screen, Shape.COLORS[4], rect, 0)
+
+        # draw info
+        text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
+        textRect = text.get_rect() 
+        textRect.center = (self.info_margin_left, 100) 
+        self.screen.blit(text, textRect) 
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
