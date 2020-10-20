@@ -41,7 +41,6 @@ class Tetris():
         self.current_piece = 3
         self.current_rotation = 1
         self.current_shape = self.get_blocks_from_shape(Shape.ALL[self.current_piece][self.current_rotation], self.start_position)
-        print('curr',self.current_shape)
 
     def get_blocks_from_shape(self, shape, offset=[0, 0]):
         blocks = []
@@ -73,11 +72,18 @@ class Tetris():
         
         return False
 
-    def next_shape(self):
-        return Shape.ALL[random.randint(0, len(Shape.ALL)-1)]
+    def new_shape(self):
+        self.current_piece = random.randint(0, len(Shape.ALL)-1)
+        self.current_rotation = 0
+        return Shape.ALL[self.current_piece][self.current_rotation]
 
-    def validate_next_position(self, nxt):
-        pass
+    def place_current_shape(self):
+        
+        for block in self.current_shape:
+
+            self.state[block[0]][block[1]] = 1
+
+        self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
 
     def step(self, action):
         
@@ -87,42 +93,65 @@ class Tetris():
         reward = 0
         done = False
         info = ''
+        placed = False # if current piece lands on another or bottom
 
         # for checking
         next_position = copy.deepcopy(self.current_shape)
 
         if action == Action.DOWN:
 
+            pass
             collision = self.check_collision_down()
             
             if not collision:
                 next_position = [[y+1, x] for y, x in next_position]
             else:
-                done = True
+                placed = True
 
         elif action == Action.LEFT:
             next_position = [[y, x-1] for y, x in next_position]
 
+            # TODO Check collision left
+            # If collision, next position = current position
+
         elif action == Action.RIGHT:
             next_position = [[y, x+1] for y, x in next_position]
+
+            # TODO Check collision right
+            # If collision, next position = current position
 
         elif action == Action.ROTATE:
             self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
             new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
             next_position = self.get_blocks_from_shape(new_rotation, self.current_shape[0])
 
+            # TODO Check collision after rotation
+            # If collision, next position = current position
+
         elif action == Action.WAIT:
-            
-            idk = 1
+            # do nothing
+            pass
+        
+        # go down one tile after all moves
+        collision = self.check_collision_down()
 
-        self.current_shape = next_position
+        if not collision:
+            next_position = [[y+1, x] for y, x in next_position]
+        else:
+            placed = True
 
+        if placed:
+            self.place_current_shape()
+        else:
+            self.current_shape = next_position
+
+        # TODO format state + shape for DQN model
         return new_state, reward, done, info
 
     def reset(self):
 
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
-        self.state[1][0] = 1
+        self.state[8][8] = 1
 
         return self.state
 
