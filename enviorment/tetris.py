@@ -156,20 +156,19 @@ class Tetris():
 
         elif action == Action.LEFT:
         
-            next_position = [[y, x-1] for y, x in next_position]
-
-            for y,x in next_position:
-                if x < 0 or self.state[y][x] == 1:
-                    next_position = [[y, x+1] for y, x in next_position]
+            for y, x in next_position:
+                if (x - 1) < 0 or self.state[y][(x - 1)] == 1:
                     break
+            else:
+                next_position = [[y, x-1] for y, x in next_position]
 
         elif action == Action.RIGHT:
-            next_position = [[y, x+1] for y, x in next_position]
-
-            for y,x in next_position:
-                if x >= self.game_columns or self.state[y][x] == 1:
-                    next_position = [[y, x-1] for y, x in next_position]
+            
+            for y, x in next_position:
+                if (x + 1) >= self.game_columns or self.state[y][(x + 1)] == 1:
                     break
+            else:
+                next_position = [[y, x+1] for y, x in next_position]
 
         elif action == Action.ROTATE:
             self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
