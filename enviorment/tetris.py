@@ -6,13 +6,7 @@ NB! MARIUS, STATE != OBSERVATION
 """
 # oversikt
 # Marius
-# TODO Check collision for left action, både for blokker og out-of-bounds
-# TODO Check collision for Right action, både for blokker og out-of-bounds
 # TODO Check collision for Rotate action, både for blokker og out-of-bounds
-# Jakob
-# TODO sjekk om rad blir fullført, reward, og flytt alle blokker over ned
-# TODO sjekk om "spawn" er blokkert, envtuelt tap
-# TODO render score og div info
 # Felles
 # TODO diskuter config, mtp gravity (realtime game til turnbased)
 # TODO Vise flere farger på figurer
@@ -161,24 +155,26 @@ class Tetris():
                     placed = True
 
         elif action == Action.LEFT:
+        
             next_position = [[y, x-1] for y, x in next_position]
 
-            # TODO Check collision left
-            # If collision, next position = current position
+            for y,x in next_position:
+                if x < 0 or self.state[y][x] == 1:
+                    next_position = [[y, x+1] for y, x in next_position]
+                    break
 
         elif action == Action.RIGHT:
             next_position = [[y, x+1] for y, x in next_position]
 
-            # TODO Check collision right
-            # If collision, next position = current position
+            for y,x in next_position:
+                if x >= self.game_columns or self.state[y][x] == 1:
+                    next_position = [[y, x-1] for y, x in next_position]
+                    break
 
         elif action == Action.ROTATE:
             self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
             new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
             next_position = self.get_blocks_from_shape(new_rotation, self.current_shape[0])
-
-            # TODO Check collision after rotation
-            # If collision, next position = current position
 
         elif action == Action.WAIT:
             if not self.config['gravity']:
