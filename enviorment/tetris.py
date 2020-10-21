@@ -138,16 +138,15 @@ class Tetris():
             if self.config['hard_drop']:
 
                 while not placed:
-                    collision = self.check_collision_down(self.current_shape)
+                    collision = self.check_collision_down(next_position)
 
                     if not collision:
                         next_position = [[y+1, x] for y, x in next_position]
                     else:
                         placed = True
 
-                    self.current_shape = next_position
             else:
-                collision = self.check_collision_down(self.current_shape)
+                collision = self.check_collision_down(next_position)
 
                 if not collision:
                     next_position = [[y+1, x] for y, x in next_position]
@@ -177,7 +176,7 @@ class Tetris():
 
         elif action == Action.WAIT:
             if not self.config['gravity']:
-                collision = self.check_collision_down(self.current_shape)
+                collision = self.check_collision_down(next_position)
 
                 if not collision:
                     next_position = [[y+1, x] for y, x in next_position]
@@ -186,7 +185,7 @@ class Tetris():
         
         if self.config['gravity']:
             # go down one tile after all moves
-            collision = self.check_collision_down(self.current_shape)
+            collision = self.check_collision_down(next_position)
 
             if not collision:
                 next_position = [[y+1, x] for y, x in next_position]
@@ -195,7 +194,7 @@ class Tetris():
 
         # if placed, update state and get new shape
         if placed:
-            for block in self.current_shape:
+            for block in next_position:
                 self.state[block[0]][block[1]] = 1
                 
             self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
