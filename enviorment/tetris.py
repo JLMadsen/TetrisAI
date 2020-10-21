@@ -63,7 +63,7 @@ class Tetris():
         
         if self.score is not None:
             if self.score > self.highscore:
-                self.highscore = score
+                self.highscore = self.score
         
         self.score = 0
 
