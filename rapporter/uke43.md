@@ -10,3 +10,6 @@ Implementerer openAI standarden.
 - Step
 - Reset
 - Render
+
+# Model
+
