@@ -18,6 +18,9 @@ import pygame as pg
 import pygame.font
 import copy
 
+from pathlib import Path
+mod_path = Path(__file__).parent
+
 from actions import Action
 from shapes import Shape
 from colors import Color
@@ -54,6 +57,9 @@ class Tetris():
         self.position = copy.deepcopy(self.start_position)
         self.highscore = 0
         self.score = None
+        
+        self.background = pygame.image.load(str(mod_path) + '/sprites/background.png')
+        self.background = pygame.transform.scale(self.background, (self.window_height, self.window_width))
 
     def reset(self):
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
@@ -204,7 +210,9 @@ class Tetris():
         return self.state, reward, done, info
 
     def render(self):
-        self.screen.fill(Color.BLACK)
+        #self.screen.fill((1, 26, 56))
+        
+        self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
         # draw game window border
         rect = pg.Rect(self.margin_left-1, 
