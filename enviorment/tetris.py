@@ -211,19 +211,31 @@ class Tetris():
     def render(self):
         self.screen.fill(Color.BLACK)
         
+        # draw game window border
+        rect = pg.Rect(self.margin_left-1, 
+                       self.margin_top-1,
+                       self.game_columns * self.cell_size +2, 
+                       self.game_rows * self.cell_size +2)
+        
+        pg.draw.rect(self.screen, Color.WHITE, rect, 1)
+        
+        # draw cells
         for i, row in enumerate(self.state):
             for j, cell in enumerate(row):
 
                 color = Color.BLACK if cell == 0 else Shape.COLORS[cell - 1]
-
+                
                 rect = pg.Rect(self.margin_left + j * self.cell_size, 
                                self.margin_top + i * self.cell_size, 
                                self.cell_size, 
                                self.cell_size)
 
                 pg.draw.rect(self.screen, color, rect, 0)
-                pg.draw.rect(self.screen, Color.GRAY, rect, 1)
+                
+                if cell == 0:
+                    pg.draw.rect(self.screen, Color.GRAY, rect, 1)
 
+        # draw current shape
         for block in self.current_shape:
 
             rect = pg.Rect(self.margin_left + block[1] * self.cell_size, 
@@ -244,7 +256,7 @@ class Tetris():
         
         self.screen.blit(score_text, score_textRect) 
         self.screen.blit(highscore_text, highscore_textRect)
-         
+        
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
