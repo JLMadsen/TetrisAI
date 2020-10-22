@@ -94,7 +94,7 @@ class Tetris():
             return True
 
         for cell in cells_under:
-            if cell == 1:
+            if cell != 0:
                 return True
         
         return False
@@ -118,7 +118,7 @@ class Tetris():
         return reward
     
     def check_loss(self):
-        return 1 in [self.state[y][x] for y, x in self.current_shape]
+        return sum([self.state[y][x] for y, x in self.current_shape]) != 0
             
     def step(self, action):
         
@@ -156,7 +156,7 @@ class Tetris():
         elif action == Action.LEFT:
         
             for y, x in next_position:
-                if (x - 1) < 0 or self.state[y][(x - 1)] == 1:
+                if (x - 1) < 0 or self.state[y][(x - 1)] != 0:
                     break
             else:
                 next_position = [[y, x-1] for y, x in next_position]
@@ -164,7 +164,7 @@ class Tetris():
         elif action == Action.RIGHT:
             
             for y, x in next_position:
-                if (x + 1) >= self.game_columns or self.state[y][(x + 1)] == 1:
+                if (x + 1) >= self.game_columns or self.state[y][(x + 1)] != 0:
                     break
             else:
                 next_position = [[y, x+1] for y, x in next_position]
@@ -195,7 +195,7 @@ class Tetris():
         # if placed, update state and get new shape
         if placed:
             for block in next_position:
-                self.state[block[0]][block[1]] = 1
+                self.state[block[0]][block[1]] = self.current_piece + 1
                 
             self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
             done = self.check_loss()
@@ -214,7 +214,7 @@ class Tetris():
         for i, row in enumerate(self.state):
             for j, cell in enumerate(row):
 
-                color = Color.BLACK if cell == 0 else Color.GREEN
+                color = Color.BLACK if cell == 0 else Shape.COLORS[cell - 1]
 
                 rect = pg.Rect(self.margin_left + j * self.cell_size, 
                                self.margin_top + i * self.cell_size, 
@@ -231,7 +231,7 @@ class Tetris():
                             self.cell_size, 
                             self.cell_size)
 
-            pg.draw.rect(self.screen, Shape.COLORS[4], rect, 0)
+            pg.draw.rect(self.screen, Shape.COLORS[self.current_piece], rect, 0)
 
         # draw info
         score_text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
