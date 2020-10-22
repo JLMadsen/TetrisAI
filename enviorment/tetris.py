@@ -65,7 +65,11 @@ class Tetris():
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
         
         # Start position
-        self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
+        shape1, self.current_piece, self.current_rotation = self.new_shape()
+        shape2, self.next_piece, self.next_rotation = self.new_shape()
+            
+        self.current_shape = self.get_blocks_from_shape(shape1, self.start_position)
+        self.next_shape = self.get_blocks_from_shape(shape2, self.start_position)
         
         if self.score is not None:
             if self.score > self.highscore:
@@ -106,9 +110,10 @@ class Tetris():
         return False
 
     def new_shape(self):
-        self.current_piece = random.randint(0, len(Shape.ALL)-1)
-        self.current_rotation = 0
-        return Shape.ALL[self.current_piece][self.current_rotation]
+        piece = random.randint(0, len(Shape.ALL)-1)
+        rotation = 0
+        shape = Shape.ALL[piece][rotation]
+        return shape, piece, rotation
     
     def check_cleared_lines(self):
         reward = 0
@@ -191,7 +196,12 @@ class Tetris():
             for block in next_position:
                 self.state[block[0]][block[1]] = self.current_piece + 1
                 
-            self.current_shape = self.get_blocks_from_shape(self.new_shape(), self.start_position)
+            self.current_shape = self.next_shape
+            self.current_piece = self.next_piece
+            self.current_rotation = self.next_rotation
+                
+            shape, self.next_piece, self.next_rotation = self.new_shape()
+            self.next_shape = self.get_blocks_from_shape(shape, self.start_position)
             done = self.check_loss()
         else:
             self.current_shape = next_position
@@ -204,7 +214,6 @@ class Tetris():
 
     def render(self, manual=0):
         #self.screen.fill((1, 26, 56))
-        
         self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
         # draw game window border
@@ -260,13 +269,38 @@ class Tetris():
             pg.draw.rect(self.screen, Shape.COLORS[self.current_piece], rect, 0)
             
         # draw info
+        next_preview = [self.game_columns * self.cell_size + 80 + self.margin_left,
+                        self.margin_top]
+        
+        rect = pg.Rect(next_preview[0], 
+                       next_preview[1],
+                       self.cell_size*6, 
+                       self.cell_size*5)
+        
+        pg.draw.rect(self.screen, Color.BLACK, rect, 0)
+        
+        rect = pg.Rect(next_preview[0]-1, 
+                       next_preview[1]-1,
+                       self.cell_size*6+2, 
+                       self.cell_size*5+2)
+        
+        pg.draw.rect(self.screen, Color.WHITE, rect, 1)
+        
+        for block in self.next_shape:
+            rect = pg.Rect(next_preview[0] + (block[1] - 2) * self.cell_size, 
+                           next_preview[1] + (block[0] + 1) * self.cell_size, 
+                           self.cell_size, 
+                           self.cell_size)
+            
+            pg.draw.rect(self.screen, Shape.COLORS[self.next_piece], rect, 0)
+            
         score_text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
         score_textRect = score_text.get_rect() 
-        score_textRect.center = (self.info_margin_left, 100)
+        score_textRect.center = (self.info_margin_left, 200)
         
         highscore_text = self.font.render(("Highscore: "+ str(self.highscore)), 1, Color.WHITE)
         highscore_textRect = highscore_text.get_rect() 
-        highscore_textRect.center = (self.info_margin_left, 140) 
+        highscore_textRect.center = (self.info_margin_left, 240) 
         
         self.screen.blit(score_text, score_textRect) 
         self.screen.blit(highscore_text, highscore_textRect)
