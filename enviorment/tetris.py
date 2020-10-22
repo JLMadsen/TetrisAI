@@ -137,19 +137,16 @@ class Tetris():
         if action == Action.DOWN:
 
             if self.config['hard_drop']:
-
-                while not placed:
+            
+                collision = self.check_collision_down(next_position)
+                while not collision:
+                    next_position = [[y+1, x] for y, x in next_position]
                     collision = self.check_collision_down(next_position)
-
-                    if not collision:
-                        next_position = [[y+1, x] for y, x in next_position]
-                    else:
-                        placed = True
+                   
+                placed = True
 
             else:
-                collision = self.check_collision_down(next_position)
-
-                if not collision:
+                if not self.check_collision_down(next_position):
                     next_position = [[y+1, x] for y, x in next_position]
                 else:
                     placed = True
@@ -177,18 +174,14 @@ class Tetris():
 
         elif action == Action.WAIT:
             if not self.config['gravity']:
-                collision = self.check_collision_down(next_position)
-
-                if not collision:
+                if not self.check_collision_down(next_position):
                     next_position = [[y+1, x] for y, x in next_position]
                 else:
                     placed = True
         
         if self.config['gravity']:
             # go down one tile after all moves
-            collision = self.check_collision_down(next_position)
-
-            if not collision:
+            if not self.check_collision_down(next_position):
                 next_position = [[y+1, x] for y, x in next_position]
             else:
                 placed = True
@@ -236,7 +229,25 @@ class Tetris():
                 pg.draw.rect(self.screen, color, rect, 0)
                 
                 if cell == 0:
-                    pg.draw.rect(self.screen, Color.GRAY, rect, 1)
+                    pg.draw.rect(self.screen, (30, 30, 30), rect, 1)
+
+        # draw drop preview
+        temp_shape = copy.deepcopy(self.current_shape)
+        collision = self.check_collision_down(temp_shape)
+        while not collision:
+            temp_shape = [[y+1, x] for y, x in temp_shape]
+            collision = self.check_collision_down(temp_shape)
+            
+        for block in temp_shape:
+            rect = pg.Rect(self.margin_left + block[1] * self.cell_size, 
+                           self.margin_top + block[0] * self.cell_size, 
+                           self.cell_size, 
+                           self.cell_size)
+            
+            color = list(Shape.COLORS[self.current_piece])
+            color = tuple([c-200 if c > 200 else c-100 if c > 100 else 0 for c in color])
+            
+            pg.draw.rect(self.screen, color, rect, 0)
 
         # draw current shape
         for block in self.current_shape:
@@ -245,9 +256,9 @@ class Tetris():
                             self.margin_top + block[0] * self.cell_size, 
                             self.cell_size, 
                             self.cell_size)
-
+            
             pg.draw.rect(self.screen, Shape.COLORS[self.current_piece], rect, 0)
-
+            
         # draw info
         score_text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
         score_textRect = score_text.get_rect() 
