@@ -209,7 +209,7 @@ class Tetris():
         # TODO format state + shape for DQN model
         return self.state, reward, done, info
 
-    def render(self):
+    def render(self, manual=0):
         #self.screen.fill((1, 26, 56))
         
         self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
@@ -260,12 +260,24 @@ class Tetris():
         self.screen.blit(score_text, score_textRect) 
         self.screen.blit(highscore_text, highscore_textRect)
         
+        done = False
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+                
+            if manual and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    _, _, done, _ = self.step(Action.LEFT)
+                if event.key == pygame.K_RIGHT:
+                    _, _, done, _ = self.step(Action.RIGHT)
+                if event.key == pygame.K_DOWN:
+                    _, _, done, _ = self.step(Action.DOWN)
+                if event.key == pygame.K_UP:
+                    _, _, done, _ = self.step(Action.ROTATE)               
 
         pg.display.update()
+        return done
 
 if __name__ == "__main__":
     from play import main
