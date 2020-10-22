@@ -11,5 +11,7 @@ Implementerer openAI standarden.
 - Reset
 - Render
 
+![mvp](tetris.png)
+
 # Model
 
