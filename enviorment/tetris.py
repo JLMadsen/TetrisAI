@@ -121,16 +121,11 @@ class Tetris():
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
             
     def step(self, action):
-        
-        old_state = self.state
-        new_state = None
-
         reward = 0
         done = False
         info = ''
         placed = False # if current piece lands on another or bottom
 
-        # for checking
         next_position = copy.deepcopy(self.current_shape)
 
         if action == Action.DOWN:
@@ -206,7 +201,7 @@ class Tetris():
         self.score += reward
 
         # TODO format state + shape for DQN model
-        return new_state, reward, done, info
+        return self.state, reward, done, info
 
     def render(self):
         self.screen.fill(Color.BLACK)
