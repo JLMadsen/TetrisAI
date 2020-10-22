@@ -285,10 +285,13 @@ class Tetris():
                        self.cell_size*5+2)
         
         pg.draw.rect(self.screen, Color.WHITE, rect, 1)
-        
+                
         for block in self.next_shape:
-            rect = pg.Rect(next_preview[0] + (block[1] - 2) * self.cell_size, 
-                           next_preview[1] + (block[0] + 1) * self.cell_size, 
+            center_x = 0 if self.next_piece == 0 else 1
+            center_y = 1 if self.next_piece == 0 else 0
+            
+            rect = pg.Rect(next_preview[0] + (block[1] - 2 + center_x) * self.cell_size, 
+                           next_preview[1] + (block[0] + 1 + center_y) * self.cell_size, 
                            self.cell_size, 
                            self.cell_size)
             
