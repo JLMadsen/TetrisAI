@@ -17,13 +17,14 @@ import random
 import pygame as pg
 import pygame.font
 import copy
+import numpy as np
 
 from pathlib import Path
 mod_path = Path(__file__).parent
 
-from actions import Action
-from shapes import Shape
-from colors import Color
+from enviorment.actions import Action
+from enviorment.shapes import Shape
+from enviorment.colors import Color
 
 class Tetris():
 
@@ -110,7 +111,8 @@ class Tetris():
         return False
 
     def new_shape(self):
-        piece = random.randint(0, len(Shape.ALL)-1)
+        #piece = random.randint(0, len(Shape.ALL)-1)
+        piece = np.random.randint(0, len(Shape.ALL))
         rotation = 0
         shape = Shape.ALL[piece][rotation]
         return shape, piece, rotation
@@ -326,7 +328,3 @@ class Tetris():
 
         pg.display.update()
         return done
-
-if __name__ == "__main__":
-    from play import main
-    main()
