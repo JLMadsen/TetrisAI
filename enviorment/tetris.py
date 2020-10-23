@@ -58,6 +58,7 @@ class Tetris():
         self.position = copy.deepcopy(self.start_position)
         self.highscore = 0
         self.score = None
+        self.attempt = 0
         
         self.background = pygame.image.load(str(mod_path) + '/sprites/background.png')
         self.background = pygame.transform.scale(self.background, (self.window_height, self.window_width))
@@ -77,8 +78,9 @@ class Tetris():
                 self.highscore = self.score
         
         self.score = 0
+        self.attempt += 1
 
-        return self.state
+        return self.state, 0, False, ''
 
     def get_blocks_from_shape(self, shape, piece, offset=[0, 0]):
         blocks = []
@@ -219,8 +221,8 @@ class Tetris():
         return self.state, reward, done, info
 
     def render(self, manual=0):
-        #self.screen.fill((1, 26, 56))
-        self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
+        self.screen.fill((1, 26, 56))
+        #self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
         # draw game window border
         rect = pg.Rect(self.margin_left-1, 
@@ -293,10 +295,9 @@ class Tetris():
         pg.draw.rect(self.screen, Color.WHITE, rect, 1)
                 
         for block in self.next_shape:
-            center_x = 0 if self.next_piece == 0 else 1
             center_y = 1 if self.next_piece == 0 else 0
             
-            rect = pg.Rect(next_preview[0] + (block[1] - 2 + center_x) * self.cell_size, 
+            rect = pg.Rect(next_preview[0] + (block[1] - 2) * self.cell_size, 
                            next_preview[1] + (block[0] + 1 + center_y) * self.cell_size, 
                            self.cell_size, 
                            self.cell_size)
@@ -311,8 +312,13 @@ class Tetris():
         highscore_textRect = highscore_text.get_rect() 
         highscore_textRect.center = (self.info_margin_left, 240) 
         
+        attempt_text = self.font.render(("Attempts: "+ str(self.attempt)), 1, Color.WHITE)
+        attempt_textRect = attempt_text.get_rect() 
+        attempt_textRect.center = (self.info_margin_left, 280) 
+        
         self.screen.blit(score_text, score_textRect) 
         self.screen.blit(highscore_text, highscore_textRect)
+        self.screen.blit(attempt_text, attempt_textRect)
         
         done = False
         for event in pg.event.get():
