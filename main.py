@@ -2,15 +2,13 @@ from enviorment.tetris import Tetris
 
 # Manual testing of tetris env
 
+env = Tetris()
+
 def main():
-    
-    env = Tetris()
-    
+
     while 1:
         env.reset()
-        
         done = False
-
         while not done:
             done = env.render(1)
 

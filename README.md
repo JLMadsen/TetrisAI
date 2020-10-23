@@ -1,6 +1,10 @@
 # TetrisAI
 DQN playing Tetris.
 
+# Install
+
+> pip install -r requirements.txt
+
 ## Ting å se på
 
 https://codemyroad.wordpress.com/2013/04/14/tetris-ai-the-near-perfect-player/

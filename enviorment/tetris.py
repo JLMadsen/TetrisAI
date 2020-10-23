@@ -69,8 +69,8 @@ class Tetris():
         shape1, self.current_piece, self.current_rotation = self.new_shape()
         shape2, self.next_piece, self.next_rotation = self.new_shape()
             
-        self.current_shape = self.get_blocks_from_shape(shape1, self.start_position)
-        self.next_shape = self.get_blocks_from_shape(shape2, self.start_position)
+        self.current_shape = self.get_blocks_from_shape(shape1, self.current_piece, self.start_position)
+        self.next_shape = self.get_blocks_from_shape(shape2, self.next_piece, self.start_position)
         
         if self.score is not None:
             if self.score > self.highscore:
@@ -80,7 +80,7 @@ class Tetris():
 
         return self.state
 
-    def get_blocks_from_shape(self, shape, offset=[0, 0]):
+    def get_blocks_from_shape(self, shape, piece, offset=[0, 0]):
         blocks = []
 
         for i, row in enumerate(shape):
@@ -91,6 +91,10 @@ class Tetris():
         # normalize
         lower_y = min([y for y, x in blocks])
         lower_x = min([x for y, x in blocks])
+
+        if offset == self.start_position:
+            offset = copy.deepcopy(self.start_position)
+            offset[1] += 0 if piece == 0 else 1
 
         return [[y-lower_y+offset[0], x-lower_x+offset[1]] for y, x in blocks]
 
@@ -177,7 +181,7 @@ class Tetris():
         elif action == Action.ROTATE:
             self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
             new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
-            next_position = self.get_blocks_from_shape(new_rotation, self.current_shape[0])
+            next_position = self.get_blocks_from_shape(new_rotation, self.current_piece, self.current_shape[0])
 
         elif action == Action.WAIT:
             if not self.config['gravity']:
@@ -203,7 +207,7 @@ class Tetris():
             self.current_rotation = self.next_rotation
                 
             shape, self.next_piece, self.next_rotation = self.new_shape()
-            self.next_shape = self.get_blocks_from_shape(shape, self.start_position)
+            self.next_shape = self.get_blocks_from_shape(shape, self.next_piece, self.start_position)
             done = self.check_loss()
         else:
             self.current_shape = next_position
