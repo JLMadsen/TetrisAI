@@ -32,9 +32,9 @@ def main(manual=0):
                 
                 action = np.random.randint(len(Action.ALL))
                 state, reward, done, info = env.step(action)
-                env.render()
                 
-                time.sleep(.05)
+                #env.render()
+                #time.sleep(0.1)
                 
                 score += reward
                 

@@ -4,16 +4,12 @@ OBSERVATION = OBSERVATION
 
 NB! MARIUS, STATE != OBSERVATION
 """
-# oversikt
+
 # Marius
-# TODO Check collision for Rotate action, både for blokker og out-of-bounds
+# TODO fikse rotering, evt velge en blokk som formen roterer rundt
 # Felles
 # TODO diskuter config, mtp gravity (realtime game til turnbased)
-# TODO Vise flere farger på figurer
-# TODO fikse rotering, evt velge en blokk som formen roterer rundt
 
-import math
-import random
 import pygame as pg
 import pygame.font
 import copy
@@ -37,8 +33,8 @@ class Tetris():
         }
         
         self.cell_size = 25
-        self.margin_top = 40  # margin for game grid
-        self.margin_left = 40
+        self.game_margin_top = 40
+        self.game_margin_left = 40
         self.info_margin_left = 450
 
         self.window_height = self.window_width = 600
@@ -94,32 +90,21 @@ class Tetris():
         # normalize
         lower_y = min([y for y, x in blocks])
         lower_x = min([x for y, x in blocks])
-
+        
         if offset == self.start_position:
             offset = copy.deepcopy(self.start_position)
             offset[1] += 0 if piece == 0 else 1
 
         return [[y-lower_y+offset[0], x-lower_x+offset[1]] for y, x in blocks]
 
-    # for current state
     def check_collision_down(self, shape):
-
-        cells_under = None
-
-        try:
-            cells_under = [self.state[y+1][x] for y, x in shape]
-        except:
-            return True
-
-        for cell in cells_under:
-            if cell != 0:
+        for y, x in shape:
+            if (y + 1) >= self.game_rows or self.state[(y + 1)][x] != 0:
                 return True
-        
         return False
 
     def new_shape(self):
-        #piece = random.randint(0, len(Shape.ALL)-1)
-        piece = np.random.randint(0, len(Shape.ALL))
+        piece = np.random.randint(len(Shape.ALL))
         rotation = 0
         shape = Shape.ALL[piece][rotation]
         return shape, piece, rotation
@@ -127,10 +112,8 @@ class Tetris():
     def check_cleared_lines(self):
         reward = 0
         
-        for i, row in enumerate(self.state):
-            cleared = 0 not in row
-            
-            if cleared:
+        for i, row in enumerate(self.state):           
+            if 0 not in row:
                 del self.state[i] # magi elns, vet ikke. men det funker fjell
                 self.state.insert(0, [0 for _ in range(self.game_columns)])
                 reward += 1
@@ -151,7 +134,6 @@ class Tetris():
         if action == Action.DOWN:
 
             if self.config['hard_drop']:
-            
                 collision = self.check_collision_down(next_position)
                 while not collision:
                     next_position = [[y+1, x] for y, x in next_position]
@@ -205,7 +187,6 @@ class Tetris():
             else:
                 placed = True
 
-        # if placed, update state and get new shape
         if placed:
             for block in next_position:
                 self.state[block[0]][block[1]] = self.current_piece + 1
@@ -231,10 +212,10 @@ class Tetris():
         #self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
         # draw game window border
-        rect = pg.Rect(self.margin_left-1, 
-                       self.margin_top-1,
-                       self.game_columns * self.cell_size +2, 
-                       self.game_rows * self.cell_size +2)
+        rect = pg.Rect(self.game_margin_left - 1, 
+                       self.game_margin_top  - 1,
+                       self.game_columns * self.cell_size + 2, 
+                       self.game_rows    * self.cell_size + 2)
         
         pg.draw.rect(self.screen, Color.WHITE, rect, 1)
         
@@ -244,8 +225,8 @@ class Tetris():
 
                 color = Color.BLACK if cell == 0 else Shape.COLORS[cell - 1]
                 
-                rect = pg.Rect(self.margin_left + j * self.cell_size, 
-                               self.margin_top + i * self.cell_size, 
+                rect = pg.Rect(self.game_margin_left + j * self.cell_size, 
+                               self.game_margin_top  + i * self.cell_size, 
                                self.cell_size, 
                                self.cell_size)
 
@@ -262,8 +243,8 @@ class Tetris():
             collision = self.check_collision_down(temp_shape)
             
         for block in temp_shape:
-            rect = pg.Rect(self.margin_left + block[1] * self.cell_size, 
-                           self.margin_top + block[0] * self.cell_size, 
+            rect = pg.Rect(self.game_margin_left + block[1] * self.cell_size, 
+                           self.game_margin_top  + block[0] * self.cell_size, 
                            self.cell_size, 
                            self.cell_size)
             
@@ -275,28 +256,28 @@ class Tetris():
         # draw current shape
         for block in self.current_shape:
 
-            rect = pg.Rect(self.margin_left + block[1] * self.cell_size, 
-                            self.margin_top + block[0] * self.cell_size, 
-                            self.cell_size, 
-                            self.cell_size)
+            rect = pg.Rect(self.game_margin_left + block[1] * self.cell_size, 
+                           self.game_margin_top + block[0] * self.cell_size, 
+                           self.cell_size, 
+                           self.cell_size)
             
             pg.draw.rect(self.screen, Shape.COLORS[self.current_piece], rect, 0)
             
         # draw info
-        next_preview = [self.game_columns * self.cell_size + 80 + self.margin_left,
-                        self.margin_top]
+        next_preview = [self.game_columns * self.cell_size + 80 + self.game_margin_left,
+                        self.game_margin_top]
         
         rect = pg.Rect(next_preview[0], 
                        next_preview[1],
-                       self.cell_size*6, 
-                       self.cell_size*5)
+                       self.cell_size * 6, 
+                       self.cell_size * 5)
         
         pg.draw.rect(self.screen, Color.BLACK, rect, 0)
         
-        rect = pg.Rect(next_preview[0]-1, 
-                       next_preview[1]-1,
-                       self.cell_size*6+2, 
-                       self.cell_size*5+2)
+        rect = pg.Rect(next_preview[0] - 1, 
+                       next_preview[1] - 1,
+                       self.cell_size * 6 + 2, 
+                       self.cell_size * 5 + 2)
         
         pg.draw.rect(self.screen, Color.WHITE, rect, 1)
                 
