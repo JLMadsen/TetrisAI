@@ -2,6 +2,7 @@ from enviorment.tetris import Tetris
 from enviorment.actions import Action
 
 import numpy as np
+import time
 
 # Manual testing of tetris env
 
@@ -16,7 +17,15 @@ def main(manual=0):
             while not done:
                 done = env.render(1)
     else:
-        while 1:
+        scores = []
+        epoch = 20_000
+        
+        for e in range(epoch):
+            
+            if not e%500:
+                print(e)
+            
+            score = 0
             state, reward, done, info = env.reset()
             
             while not done:
@@ -24,6 +33,15 @@ def main(manual=0):
                 action = np.random.randint(len(Action.ALL))
                 state, reward, done, info = env.step(action)
                 env.render()
+                
+                time.sleep(.05)
+                
+                score += reward
+                
+            if score != 0:
+                scores.append(score)
+                
+        print(scores)
 
 if __name__ == "__main__":
     main()
