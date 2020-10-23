@@ -18,6 +18,7 @@ import pygame as pg
 import pygame.font
 import copy
 import numpy as np
+import sys
 
 from pathlib import Path
 mod_path = Path(__file__).parent
@@ -181,9 +182,14 @@ class Tetris():
                 next_position = [[y, x+1] for y, x in next_position]
 
         elif action == Action.ROTATE:
+            current_posistion = next_position
             self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
             new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
             next_position = self.get_blocks_from_shape(new_rotation, self.current_piece, self.current_shape[0])
+            for y, x in next_position:
+                if x >= self.game_columns or y >= self.game_rows or self.state[y][x] != 0:
+                    next_position = current_posistion
+                    break
 
         elif action == Action.WAIT:
             if not self.config['gravity']:
