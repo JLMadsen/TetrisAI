@@ -49,7 +49,7 @@ class Tetris():
         self.screen = pg.display.set_mode((self.window_height, self.window_width))
         self.clock = pg.time.Clock()
         self.screen.fill(Color.BLACK)
-        self.font = pygame.font.Font(None, 36)
+        self.font = pg.font.Font(None, 36)
 
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
@@ -57,8 +57,8 @@ class Tetris():
         self.score = None
         self.attempt = 0
         
-        self.background = pygame.image.load(str(mod_path) + '/sprites/background.png')
-        self.background = pygame.transform.scale(self.background, (self.window_height, self.window_width))
+        self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
+        self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
 
     def reset(self):
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
@@ -257,7 +257,7 @@ class Tetris():
         for block in self.current_shape:
 
             rect = pg.Rect(self.game_margin_left + block[1] * self.cell_size, 
-                           self.game_margin_top + block[0] * self.cell_size, 
+                           self.game_margin_top  + block[0] * self.cell_size, 
                            self.cell_size, 
                            self.cell_size)
             
@@ -313,15 +313,17 @@ class Tetris():
                 pg.quit()
                 sys.exit()
                 
-            if manual and event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+            if manual and event.type == pg.KEYDOWN:
+                if event.key == pg.K_LEFT:
                     _, _, done, _ = self.step(Action.LEFT)
-                if event.key == pygame.K_RIGHT:
+                if event.key == pg.K_RIGHT:
                     _, _, done, _ = self.step(Action.RIGHT)
-                if event.key == pygame.K_DOWN:
+                if event.key == pg.K_DOWN:
                     _, _, done, _ = self.step(Action.DOWN)
-                if event.key == pygame.K_UP:
-                    _, _, done, _ = self.step(Action.ROTATE)               
+                if event.key == pg.K_UP:
+                    _, _, done, _ = self.step(Action.ROTATE)  
+                if event.key == pg.K_SPACE:
+                    _, _, done, _ = self.step(Action.WAIT)             
 
         pg.display.update()
         return done
