@@ -1,8 +1,5 @@
-
 class Color:
-    def __init__(self):
-        pass
-
+    
     WHITE  = (255, 255, 255)
     BLACK  = (0,   0,   0  )
     GRAY   = (100, 100, 100)
