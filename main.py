@@ -1,12 +1,9 @@
 from enviorment.tetris import Tetris
-from enviorment.actions import Action
 
 import numpy as np
 import time
 
-# Manual testing of tetris env
-
-env = Tetris()
+env = Tetris({'reduced_shapes': 0})
 
 def main(manual=0):
 
@@ -30,11 +27,11 @@ def main(manual=0):
             
             while not done:
                 
-                action = np.random.randint(len(Action.ALL))
+                action = env.action_sample             
                 state, reward, done, info = env.step(action)
                 
-                #env.render()
-                #time.sleep(0.1 if e < 2 else 0)
+                env.render()
+                time.sleep(0.1 if e < 2 else 0)
                 
                 score += reward
                 

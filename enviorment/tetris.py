@@ -22,15 +22,31 @@ mod_path = Path(__file__).parent
 from enviorment.actions import Action
 from enviorment.shapes import Shape
 from enviorment.colors import Color
+from enviorment.reducedshapes import ReducedShape
 
 class Tetris():
 
-    def __init__(self):
+    def __init__(self, config=None):
         
         self.config = {
-            'hard_drop': 1, # Action.DOWN goes all the way down
-            'gravity': 0    # Piece moves down after all moves
+            'hard_drop': 1,     # Action.DOWN goes all the way down
+            'gravity': 0,       # Piece moves down after all moves
+            'reduced_shapes': 0 # lettris
         }
+        
+        if config is not None:
+            for key, value in config.items():
+                self.config[key] = value
+        
+        if not self.config['reduced_shapes']:
+            self.shapes = Shape
+            self.shape_space = len(Shape.ALL)
+        else:
+            self.shapes = ReducedShape
+            self.shape_space = len(ReducedShape.ALL)
+            
+        self.actions = Action
+        self.action_space = len(Action.ALL)
         
         self.cell_size = 25
         self.game_margin_top = 40
@@ -59,6 +75,10 @@ class Tetris():
         
         self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
         self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
+
+    @property
+    def action_sample(self):
+        return np.random.randint(self.action_space)
 
     def reset(self):
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
@@ -104,9 +124,9 @@ class Tetris():
         return False
 
     def new_shape(self):
-        piece = np.random.randint(len(Shape.ALL))
+        piece = np.random.randint(self.shape_space)
         rotation = 0
-        shape = Shape.ALL[piece][rotation]
+        shape = self.shapes.ALL[piece][rotation]
         return shape, piece, rotation
     
     def check_cleared_lines(self):
@@ -165,8 +185,8 @@ class Tetris():
 
         elif action == Action.ROTATE:
             current_posistion = next_position
-            self.current_rotation = (self.current_rotation - 1) % len(Shape.ALL[self.current_piece])
-            new_rotation = Shape.ALL[self.current_piece][self.current_rotation]
+            self.current_rotation = (self.current_rotation - 1) % len(self.shapes.ALL[self.current_piece])
+            new_rotation = self.shapes.ALL[self.current_piece][self.current_rotation]
             next_position = self.get_blocks_from_shape(new_rotation, self.current_piece, self.current_shape[0])
             for y, x in next_position:
                 if x >= self.game_columns or y >= self.game_rows or self.state[y][x] != 0:
@@ -223,7 +243,7 @@ class Tetris():
         for i, row in enumerate(self.state):
             for j, cell in enumerate(row):
 
-                color = Color.BLACK if cell == 0 else Shape.COLORS[cell - 1]
+                color = Color.BLACK if cell == 0 else self.shapes.COLORS[cell - 1]
                 
                 rect = pg.Rect(self.game_margin_left + j * self.cell_size, 
                                self.game_margin_top  + i * self.cell_size, 
@@ -248,7 +268,7 @@ class Tetris():
                            self.cell_size, 
                            self.cell_size)
             
-            color = list(Shape.COLORS[self.current_piece])
+            color = list(self.shapes.COLORS[self.current_piece])
             color = tuple([c-200 if c > 200 else c-100 if c > 100 else 0 for c in color])
             
             pg.draw.rect(self.screen, color, rect, 0)
@@ -261,7 +281,7 @@ class Tetris():
                            self.cell_size, 
                            self.cell_size)
             
-            pg.draw.rect(self.screen, Shape.COLORS[self.current_piece], rect, 0)
+            pg.draw.rect(self.screen, self.shapes.COLORS[self.current_piece], rect, 0)
             
         # draw info
         next_preview = [self.game_columns * self.cell_size + 80 + self.game_margin_left,
@@ -289,7 +309,7 @@ class Tetris():
                            self.cell_size, 
                            self.cell_size)
             
-            pg.draw.rect(self.screen, Shape.COLORS[self.next_piece], rect, 0)
+            pg.draw.rect(self.screen, self.shapes.COLORS[self.next_piece], rect, 0)
             
         score_text = self.font.render(("Score: "+ str(self.score)), 1, Color.WHITE)
         score_textRect = score_text.get_rect() 
