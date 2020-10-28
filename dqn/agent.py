@@ -50,4 +50,10 @@ class DQN(nn.Module):
     def policy(self):
         pass
     
+    def run_n_epochs(self, epochs):
+        pass
+    
+    def learn(self):
+        pass
+    
     
