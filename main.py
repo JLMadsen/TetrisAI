@@ -1,14 +1,12 @@
 from enviorment.tetris import Tetris
 
-from dqn.agent import DQNAgent
+from dqn.agent import DQN
 
 import numpy as np
 import time
 
-# Manual testing of tetris env
-
 env = Tetris()
-agent = DQNAgent(env)
+agent = DQN(env)
 
 def main(manual=0):
 
@@ -34,12 +32,7 @@ def main(manual=0):
                 
                 action = env.action_sample             
                 state, reward, done, info = env.step(action)
-                
-                for layer in state:
-                    print('_'*30)
-                    for row in layer:
-                        print(row)
-                
+                                
                 env.render()
                 time.sleep(0.1 if e < 2 else 0)
                 
