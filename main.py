@@ -18,7 +18,7 @@ def main(manual=0):
                 done = env.render(1)
     else:
         scores = []
-        epoch = 20_000
+        epoch = 100_000
         
         for e in range(epoch):
             
@@ -34,7 +34,7 @@ def main(manual=0):
                 state, reward, done, info = env.step(action)
                 
                 #env.render()
-                #time.sleep(0.1)
+                #time.sleep(0.1 if e < 2 else 0)
                 
                 score += reward
                 
