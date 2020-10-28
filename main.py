@@ -1,5 +1,4 @@
 from enviorment.tetris import Tetris
-from enviorment.actions import Action
 
 from dqn.agent import DQNAgent
 
@@ -21,7 +20,7 @@ def main(manual=0):
                 done = env.render(1)
     else:
         scores = []
-        epoch = 20_000
+        epoch = 100_000
         
         for e in range(epoch):
             
@@ -33,11 +32,16 @@ def main(manual=0):
             
             while not done:
                 
-                action = np.random.randint(len(Action.ALL))
+                action = env.action_sample             
                 state, reward, done, info = env.step(action)
                 
-                #env.render()
-                #time.sleep(0.1)
+                for layer in state:
+                    print('_'*30)
+                    for row in layer:
+                        print(row)
+                
+                env.render()
+                time.sleep(0.1 if e < 2 else 0)
                 
                 score += reward
                 
