@@ -1,11 +1,13 @@
 from enviorment.tetris import Tetris
 
+import csv
 import numpy as np
 import time
+from Imitation.data_handler import *
 
 env = Tetris({'reduced_shapes': 1})
 
-def main(manual=0):
+def main(manual=1):
 
     if manual:
         while 1:
@@ -13,6 +15,8 @@ def main(manual=0):
             done = False
             while not done:
                 state, action, done = env.render(1)
+                if state and action:
+                    write_data(state, action)
     else:
         scores = []
         epoch = 100_000
