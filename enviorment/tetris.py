@@ -48,34 +48,38 @@ class Tetris():
         self.actions = Action
         self.action_space = len(Action.ALL)
         
-        self.cell_size = 25
-        self.game_margin_top = 40
-        self.game_margin_left = 40
-        self.info_margin_left = 450
-
-        self.window_height = self.window_width = 600
-        
         # Standard Tetris layout
         self.game_rows = 20
         self.game_columns = 10
-        
-        pg.init()
-        pg.display.set_caption('TETRIS')
-
-        self.screen = pg.display.set_mode((self.window_height, self.window_width))
-        self.clock = pg.time.Clock()
-        self.screen.fill(Color.BLACK)
-        self.font = pg.font.Font(None, 36)
 
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
         self.highscore = 0
         self.score = None
         self.attempt = 0
-        
-        self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
-        self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
+       
+    def clone(self):
+        tetris = Tetris()
+        tetris.reset()
+        tetris.state = copy.deepcopy(self.state)
+        tetris.current_shape = copy.deepcopy(self.current_shape)
+        tetris.next_shape = copy.deepcopy(self.next_shape)
+        tetris.current_piece = copy.deepcopy(self.current_piece)
+        tetris.next_piece = copy.deepcopy(self.next_piece)
 
+        return tetris
+        
+    # defines observation
+    def discretization(self):
+        grid_layer = copy.deepcopy(self.state)
+        grid_layer = [[1 if c else 0 for c in row] for row in grid_layer]
+        piece_layer = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
+        
+        for y, x in self.current_shape:
+            piece_layer[y][x] = 1
+            
+        return [grid_layer, piece_layer]
+        
     @property
     def action_sample(self):
         return np.random.randint(self.action_space)
@@ -97,7 +101,7 @@ class Tetris():
         self.score = 0
         self.attempt += 1
 
-        return self.state, 0, False, ''
+        return self.discretization(), 0, False, ''
 
     def get_blocks_from_shape(self, shape, piece, offset=[0, 0]):
         blocks = []
@@ -224,10 +228,12 @@ class Tetris():
         reward += self.check_cleared_lines()
         self.score += reward
 
-        # TODO format state + shape for DQN model
-        return self.state, reward, done, info
+        return self.discretization(), reward, done, info
 
     def render(self, manual=0):
+        if not hasattr(self, 'cell_size'):
+            self.__initView()
+        
         self.screen.fill((1, 26, 56))
         #self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
@@ -347,3 +353,22 @@ class Tetris():
 
         pg.display.update()
         return done
+    
+    def __initView(self):
+        self.cell_size = 25
+        self.game_margin_top = 40
+        self.game_margin_left = 40
+        self.info_margin_left = 450
+
+        self.window_height = self.window_width = 600
+
+        pg.init()
+        pg.display.set_caption('TETRIS')
+
+        self.screen = pg.display.set_mode((self.window_height, self.window_width))
+        self.clock = pg.time.Clock()
+        self.screen.fill(Color.BLACK)
+        self.font = pg.font.Font(None, 36)
+
+        self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
+        self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))

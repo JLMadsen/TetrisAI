@@ -3,7 +3,7 @@ from enviorment.tetris import Tetris
 import numpy as np
 import time
 
-env = Tetris({'reduced_shapes': 0})
+env = Tetris({'reduced_shapes': 1})
 
 def main(manual=0):
 
@@ -29,6 +29,11 @@ def main(manual=0):
                 
                 action = env.action_sample             
                 state, reward, done, info = env.step(action)
+                
+                for layer in state:
+                    print('_'*30)
+                    for row in layer:
+                        print(row)
                 
                 env.render()
                 time.sleep(0.1 if e < 2 else 0)
