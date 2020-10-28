@@ -5,11 +5,6 @@ OBSERVATION = OBSERVATION
 NB! MARIUS, STATE != OBSERVATION
 """
 
-# Marius
-# TODO fikse rotering, evt velge en blokk som formen roterer rundt
-# Felles
-# TODO diskuter config, mtp gravity (realtime game til turnbased)
-
 import pygame as pg
 import pygame.font
 import copy
@@ -35,8 +30,11 @@ class Tetris():
         }
         
         if config is not None:
-            for key, value in config.items():
-                self.config[key] = value
+            if isinstance(config, dict):
+                for key, value in config.items():
+                    self.config[key] = value
+            else:
+                raise TypeError('Config need to be dict')
         
         if not self.config['reduced_shapes']:
             self.shapes = Shape
@@ -147,7 +145,7 @@ class Tetris():
     def check_loss(self):
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
             
-    def step(self, action):
+    def step(self, action):      
         reward = 0
         done = False
         info = ''
