@@ -12,7 +12,7 @@ def main(manual=0):
             env.reset()
             done = False
             while not done:
-                done = env.render(1)
+                state, action, done = env.render(1)
     else:
         scores = []
         epoch = 100_000
@@ -29,11 +29,6 @@ def main(manual=0):
                 
                 action = env.action_sample             
                 state, reward, done, info = env.step(action)
-                
-                for layer in state:
-                    print('_'*30)
-                    for row in layer:
-                        print(row)
                 
                 env.render()
                 time.sleep(0.1 if e < 2 else 0)
