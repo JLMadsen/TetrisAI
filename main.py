@@ -1,12 +1,15 @@
 from enviorment.tetris import Tetris
 from enviorment.actions import Action
 
+from dqn.agent import DQNAgent
+
 import numpy as np
 import time
 
 # Manual testing of tetris env
 
 env = Tetris()
+agent = DQNAgent(env)
 
 def main(manual=0):
 
