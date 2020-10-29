@@ -6,9 +6,9 @@ import numpy as np
 import time
 
 env = Tetris()
-agent = DQN(env)
+model = DQN(env)
 
-def main(manual=0):
+def main(manual=0, load_weights=True):
 
     if manual:
         while 1:
@@ -18,21 +18,26 @@ def main(manual=0):
                 state, action, done = env.render(1)
     else:
         scores = []
-        epoch = 100_000
+        epoch = 10_000
+
+        if load_weights:
+            model.load_weights()
+        else:
+            model.train_weights()
         
         for e in range(epoch):
             
             if not e%500:
-                print(e)
+                print('Epoch:', e)
             
             score = 0
             state, reward, done, info = env.reset()
             
             while not done:
                 
-                action = env.action_sample             
+                action = model.policy(state)
                 state, reward, done, info = env.step(action)
-                                
+                
                 env.render()
                 time.sleep(0.1 if e < 2 else 0)
                 

@@ -2,6 +2,9 @@ import math
 import random
 import numpy as np
 from copy import deepcopy
+from pathlib import Path
+mod_path = Path(__file__).parent
+weight_path = str(mod_path) + '/weights'
 
 import torch
 import torch.nn as nn
@@ -30,30 +33,51 @@ class DQN(nn.Module):
         self.epsilon = self.upper_epsilon
         
         self.memory = Memory()
-        
+                
+        """
+        Conv2d 1:
+            in_channels
+                2, grid_layer + piece_layer
+            out_channels
+                ~ TBD
+            kernel_size
+                (20, 10) = (height * width)
+        """
+                
         self.model = nn.Sequential(
-            nn.conv3d(10*20*2, ),
+            nn.Conv2d(2, 1, (20, 10)),
             nn.ReLU(),
-            #nn.Conv2d(32, 64, kernel_size=4, stride=2),
+            #nn.Conv2d(5*10*2, ),
             nn.ReLU(),
-            #nn.Conv2d(64, 64, kernel_size=3, stride=1),
+            #nn.Conv2d(),
             nn.ReLU(),
             nn.Linear(env.action_space, 1),
             nn.ReLU(),
         )
         
-        self.optimizer = optim.Adam(self.parameters, self.alpha)
+        #self.optimizer = optim.Adam(self.parameters, self.alpha)
         
     def forward(self, x):
         return self.model(x)
     
-    def policy(self):
-        pass
+    def policy(self, state):
+        if not torch.is_tensor(state):
+            state = torch.Tensor([state])
+        
+        if random.uniform(0, 1) < self.epsilon and 0:
+            return self.env.action_sample
+        else:
+            print((action := self.forward(state)))
+            return np.argmax(action)
     
-    def run_n_epochs(self, epochs):
-        pass
+    def save_weights(self):
+        torch.save(self.state_dict(), weight_path)
     
-    def learn(self):
+    def load_weights(self):
+        self.load_state_dict(torch.load(weight_path))
+        self.eval()
+    
+    def train_weights(self, epochs = 100):
         pass
     
     
