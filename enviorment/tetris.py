@@ -376,3 +376,49 @@ class Tetris():
 
         self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
         self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
+
+    # for "simulating" steps
+    def save_checkpoint(self):
+        return [
+            copy.deepcopy(self.state),
+            copy.deepcopy(self.current_piece),
+            copy.deepcopy(self.current_rotation),
+            copy.deepcopy(self.current_shape),
+            copy.deepcopy(self.next_piece),
+            copy.deepcopy(self.next_shape),
+            copy.deepcopy(self.next_rotation),
+            copy.deepcopy(self.score)]
+        
+    def load_checkpoint(self, save):
+        self.state,self.current_piece,self.current_rotation,self.current_shape,self.next_piece,self.next_shape,self.next_rotation,self.score = save
+
+    def get_all_states(self):
+        checkpoint = self.save_checkpoint()
+        
+        states = []
+        actions = []
+        
+        for r in range(1, len(self.shapes.ALL[self.current_piece]) + 1):
+            for i in range(self.game_columns):          
+                actions.append([self.actions.ROTATE]*r)      
+                traverse = self.actions.LEFT if (i-(self.game_columns//2)) < 0 else self.actions.RIGHT
+                actions[-1] += [traverse] * (i if i < (self.game_columns//2) else i-(self.game_columns//2))
+                actions[-1].append(self.actions.DOWN)
+                
+        for action_sublist in actions:
+            self.load_checkpoint(checkpoint)
+            
+            state = None
+            for action in action_sublist:
+                state, reward, done, _ = self.step(action)
+                
+            states.append(state[0])
+            
+            
+        for state in states:
+            print('_'*30)
+            for row in state:
+                print(''.join(map(lambda x: '#' if x else ' ', row)))
+
+        
+

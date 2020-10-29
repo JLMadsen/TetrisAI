@@ -47,9 +47,7 @@ class DQN(nn.Module):
         self.model = nn.Sequential(
             nn.Conv2d(2, 1, (20, 10)),
             nn.ReLU(),
-            #nn.Conv2d(5*10*2, ),
-            nn.ReLU(),
-            #nn.Conv2d(),
+            nn.Conv2d(1, 1, (1, 5)),
             nn.ReLU(),
             nn.Linear(env.action_space, 1),
             nn.ReLU(),
@@ -68,16 +66,41 @@ class DQN(nn.Module):
             return self.env.action_sample
         else:
             print((action := self.forward(state)))
-            return np.argmax(action)
+            return np.argmax(action.detach().numpy())
     
-    def save_weights(self):
-        torch.save(self.state_dict(), weight_path)
-    
+    def save_weights(self, suffix=''):
+        torch.save(self.state_dict(), weight_path+suffix)
+
     def load_weights(self):
         self.load_state_dict(torch.load(weight_path))
         self.eval()
     
-    def train_weights(self, epochs = 100):
-        pass
+    def train_weights(self, epochs=100):
+        rewards = []
+        scores = []
+        steps = 0 # if we want to limit training
+        
+        for e in range(1):
+            
+            total_reward = 0
+            obs, done, reward, info  = self.env.reset()
+        
+            possible_states = self.env.get_all_states()
+            
+            
+        
+            #while not done:
+                
+                #action, state,         
+    
+    def adjust_weights(self, epochs=100, batch_size=512):
+        
+        if len(self.memory) < batch_size:
+            batch_size = len(self.memory)
+               
+        batch = self.memory.sample(batch_size)
+        
+        train_x = []
+        train_y = []
     
     

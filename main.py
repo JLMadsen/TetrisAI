@@ -8,7 +8,7 @@ import time
 env = Tetris()
 model = DQN(env)
 
-def main(manual=0, load_weights=True):
+def main(manual=0, load_weights=False):
 
     if manual:
         while 1:
@@ -36,6 +36,9 @@ def main(manual=0, load_weights=True):
             while not done:
                 
                 action = model.policy(state)
+                
+                print('action', action)
+                action %= env.action_space
                 state, reward, done, info = env.step(action)
                 
                 env.render()
@@ -47,6 +50,8 @@ def main(manual=0, load_weights=True):
                 scores.append(score)
                 
         print(scores)
+        
+        model.save_weights('_new')
 
 if __name__ == "__main__":
     main()

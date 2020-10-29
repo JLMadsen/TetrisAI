@@ -11,8 +11,11 @@ class Memory:
             del self.memory[0]
         self.memory.append(experience)
         
-    def sample(self):
-        return random.sample(self.memory)
+    def sample(self, num=1):
+        return random.sample(self.memory, num)
     
     def clear(self):
         self.memory = []
+        
+    def __len__(self):
+        return len(self.memory)
