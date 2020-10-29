@@ -15,7 +15,7 @@ def main(manual=0):
             env.reset()
             done = False
             while not done:
-                done = env.render(1)
+                state, action, done = env.render(1)
     else:
         scores = []
         epoch = 100_000

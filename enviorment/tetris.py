@@ -5,11 +5,6 @@ OBSERVATION = OBSERVATION
 NB! MARIUS, STATE != OBSERVATION
 """
 
-# Marius
-# TODO fikse rotering, evt velge en blokk som formen roterer rundt
-# Felles
-# TODO diskuter config, mtp gravity (realtime game til turnbased)
-
 import pygame as pg
 import pygame.font
 import copy
@@ -35,8 +30,11 @@ class Tetris():
         }
         
         if config is not None:
-            for key, value in config.items():
-                self.config[key] = value
+            if isinstance(config, dict):
+                for key, value in config.items():
+                    self.config[key] = value
+            else:
+                raise TypeError('Config need to be dict')
         
         if not self.config['reduced_shapes']:
             self.shapes = Shape
@@ -147,7 +145,7 @@ class Tetris():
     def check_loss(self):
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
             
-    def step(self, action):
+    def step(self, action):      
         reward = 0
         done = False
         info = ''
@@ -333,26 +331,32 @@ class Tetris():
         self.screen.blit(highscore_text, highscore_textRect)
         self.screen.blit(attempt_text, attempt_textRect)
         
+        action = 0
         done = False
+        state = None
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
                 
+
             if manual and event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
-                    _, _, done, _ = self.step(Action.LEFT)
+                    action = Action.LEFT
                 if event.key == pg.K_RIGHT:
-                    _, _, done, _ = self.step(Action.RIGHT)
+                    action = Action.RIGHT
                 if event.key == pg.K_DOWN:
-                    _, _, done, _ = self.step(Action.DOWN)
+                    action = Action.DOWN
                 if event.key == pg.K_UP:
-                    _, _, done, _ = self.step(Action.ROTATE)  
+                    action = Action.ROTATE
                 if event.key == pg.K_SPACE:
-                    _, _, done, _ = self.step(Action.WAIT)             
+                    action = Action.WAIT
+
+                state, _, done, _ = self.step(action)
+                    
 
         pg.display.update()
-        return done
+        return state, action, done
     
     def __initView(self):
         self.cell_size = 25
