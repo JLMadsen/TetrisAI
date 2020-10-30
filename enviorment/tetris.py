@@ -10,6 +10,7 @@ import pygame.font
 import copy
 import numpy as np
 import sys
+import time
 
 from pathlib import Path
 mod_path = Path(__file__).parent
@@ -18,6 +19,8 @@ from enviorment.actions import Action
 from enviorment.shapes import Shape
 from enviorment.colors import Color
 from enviorment.reducedshapes import ReducedShape
+
+
 
 class Tetris():
 
@@ -56,6 +59,8 @@ class Tetris():
         self.score = None
         self.attempt = 0
        
+       
+       
     def clone(self):
         tetris = Tetris()
         tetris.reset()
@@ -66,6 +71,8 @@ class Tetris():
         tetris.next_piece = copy.deepcopy(self.next_piece)
 
         return tetris
+        
+        
         
     # defines observation
     def discretization(self):
@@ -78,9 +85,13 @@ class Tetris():
             
         return [grid_layer, piece_layer]
         
+        
+        
     @property
     def action_sample(self):
         return np.random.randint(self.action_space)
+
+
 
     def reset(self):
         self.state = [[0 for _ in range(self.game_columns)] for _ in range(self.game_rows)]
@@ -101,6 +112,8 @@ class Tetris():
 
         return self.discretization(), 0, False, ''
 
+
+
     def get_blocks_from_shape(self, shape, piece, offset=[0, 0]):
         blocks = []
 
@@ -119,17 +132,23 @@ class Tetris():
 
         return [[y-lower_y+offset[0], x-lower_x+offset[1]] for y, x in blocks]
 
+
+
     def check_collision_down(self, shape):
         for y, x in shape:
             if (y + 1) >= self.game_rows or self.state[(y + 1)][x] != 0:
                 return True
         return False
 
+
+
     def new_shape(self):
         piece = np.random.randint(self.shape_space)
         rotation = 0
         shape = self.shapes.ALL[piece][rotation]
         return shape, piece, rotation
+    
+    
     
     def check_cleared_lines(self):
         reward = 0
@@ -142,8 +161,12 @@ class Tetris():
 
         return reward
     
+    
+    
     def check_loss(self):
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
+            
+            
             
     def step(self, action):      
         reward = 0
@@ -227,6 +250,8 @@ class Tetris():
         self.score += reward
 
         return self.discretization(), reward, done, info
+
+
 
     def render(self, manual=0):
         if not hasattr(self, 'cell_size'):
@@ -338,8 +363,7 @@ class Tetris():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
-                
-
+            
             if manual and event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
                     action = Action.LEFT
@@ -351,12 +375,20 @@ class Tetris():
                     action = Action.ROTATE
                 if event.key == pg.K_SPACE:
                     action = Action.WAIT
+                    
+                self.get_all_states()
 
                 state, _, done, _ = self.step(action)
                     
-
         pg.display.update()
         return state, action, done
+    
+    
+    
+    def quit(self):
+        pg.quit()
+        
+        
     
     def __initView(self):
         self.cell_size = 25
@@ -366,6 +398,7 @@ class Tetris():
 
         self.window_height = self.window_width = 600
 
+        self.pg = pg
         pg.init()
         pg.display.set_caption('TETRIS')
 
@@ -376,6 +409,8 @@ class Tetris():
 
         self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
         self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
+
+
 
     # for "simulating" steps
     def save_checkpoint(self):
@@ -389,36 +424,86 @@ class Tetris():
             copy.deepcopy(self.next_rotation),
             copy.deepcopy(self.score)]
         
+        
+        
     def load_checkpoint(self, save):
         self.state,self.current_piece,self.current_rotation,self.current_shape,self.next_piece,self.next_shape,self.next_rotation,self.score = save
 
-    def get_all_states(self):
-        checkpoint = self.save_checkpoint()
+
+
+    def get_all_states(self, display=True):
         
         states = []
         actions = []
         
         for r in range(1, len(self.shapes.ALL[self.current_piece]) + 1):
-            for i in range(self.game_columns):          
+            for i in range(self.game_columns):
                 actions.append([self.actions.ROTATE]*r)      
                 traverse = self.actions.LEFT if (i-(self.game_columns//2)) < 0 else self.actions.RIGHT
-                actions[-1] += [traverse] * (i if i < (self.game_columns//2) else i-(self.game_columns//2))
+                actions[-1] += [traverse] * (i if i < (self.game_columns//2) else i-(self.game_columns//2)+1)
                 actions[-1].append(self.actions.DOWN)
                 
-        for action_sublist in actions:
-            self.load_checkpoint(checkpoint)
+        rewards = [0]*len(actions)
+                
+        for i, action_sublist in enumerate(actions):
+            checkpoint = self.save_checkpoint()
             
             state = None
             for action in action_sublist:
                 state, reward, done, _ = self.step(action)
+                #self.render()
+                #time.sleep(.01)
+                rewards[i] += reward * 5
                 
             states.append(state[0])
+            self.load_checkpoint(checkpoint)
             
+        #self.render()
             
-        for state in states:
-            print('_'*30)
-            for row in state:
-                print(''.join(map(lambda x: '#' if x else ' ', row)))
+        if display:
+            for i, state in enumerate(states):
+                rewards[i] += sum(self.heuristic_value(state))
+                #print('_'*30)
+                #for i, row in enumerate(state):
+                #    print(str(i) + (' ' if i<10 else '') + ' |', ''.join(map(lambda x: '#' if x else ' ', row)))
 
+        return states, actions, rewards
+    
+    
+    
+    def heuristic_value(self, state):
+        
+        # evenness, total diff between column heigts
+        reverse = list(reversed((range(len(state)))))
+        heights = [0 for _ in range(len(state[0]))]
+        for y, row in enumerate(state):
+            for x, cell in enumerate(row):
+                if not heights[x] and cell:
+                    heights[x] = reverse[y] + 1
+
+        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
+        
+        # covered cells, empty cells with filled cell above
+        covered_cells = 0
+        for y, row in enumerate(state):
+            for x, cell in enumerate(row):
+                #print(y, x, cell)
+                if not cell:
+                    if y > 0 and state[y-1][x]:
+                        covered_cells += 1
+
+        
+        #print('covered cells:', covered_cells)
+        #print('evenness:     ', evenness)
+        
+        return [covered_cells*2, -evenness]
+                    
+
+    
+                        
+                        
+        
+        
+        
         
 

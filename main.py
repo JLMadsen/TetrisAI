@@ -5,7 +5,7 @@ from dqn.agent import DQN
 import numpy as np
 import time
 
-env = Tetris()
+env = Tetris({'reduced_shapes': 0})
 model = DQN(env)
 
 def main(manual=0, load_weights=False):
@@ -16,14 +16,16 @@ def main(manual=0, load_weights=False):
             done = False
             while not done:
                 state, action, done = env.render(1)
+                
+                
     else:
         scores = []
         epoch = 10_000
 
-        if load_weights:
-            model.load_weights()
-        else:
-            model.train_weights()
+        #if load_weights:
+        #    model.load_weights()
+        #else:
+        #    model.train_weights()
         
         for e in range(epoch):
             
@@ -36,13 +38,14 @@ def main(manual=0, load_weights=False):
             while not done:
                 
                 action = model.policy(state)
-                
-                print('action', action)
-                action %= env.action_space
-                state, reward, done, info = env.step(action)
-                
+                if isinstance(action, list):
+                    for a in action:
+                        state, reward, done, info = env.step(a)
+                else:
+                    state, reward, done, info = env.step(action)
+
                 env.render()
-                time.sleep(0.1 if e < 2 else 0)
+                time.sleep(0.07 if e < 2 else 0)
                 
                 score += reward
                 
@@ -50,8 +53,14 @@ def main(manual=0, load_weights=False):
                 scores.append(score)
                 
         print(scores)
-        
         model.save_weights('_new')
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        
+    except KeyboardInterrupt:
+        pass
+    
+    finally:
+        env.quit()

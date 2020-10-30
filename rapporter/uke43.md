@@ -13,5 +13,5 @@ Implementerer Tetris etter openAI standarden.
 
 ![mvp](./imgs/tetris.png)
 
-# Model
+# AI: Pascal
 

@@ -28,4 +28,18 @@ I main
 
 ![config](./imgs/config2.png)
 
+# AI: DQN
+
+Uten riktige vekter ser man fort at den spiller feil.
+
+![wells](./imgs/wells.gif)
+
+Dersom den blir straffet for å lage dype hull blir den bedre.
+
+![letris](./imgs/letris.gif)
+
+# AI: Imitation
+
+# AI:
+
 

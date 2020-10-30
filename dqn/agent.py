@@ -56,15 +56,23 @@ class DQN(nn.Module):
         #self.optimizer = optim.Adam(self.parameters, self.alpha)
         
     def forward(self, x):
+        if not torch.is_tensor(x):
+            x = torch.Tensor([x])
+            
         return self.model(x)
     
     def policy(self, state):
-        if not torch.is_tensor(state):
-            state = torch.Tensor([state])
         
         if random.uniform(0, 1) < self.epsilon and 0:
             return self.env.action_sample
         else:
+            
+            states, actions, rewards = self.env.get_all_states(state)
+            
+            #for state, action, rewards in zip(states, actions):
+                
+            return actions[np.argmax(rewards)]    
+                
             print((action := self.forward(state)))
             return np.argmax(action.detach().numpy())
     
@@ -74,7 +82,7 @@ class DQN(nn.Module):
     def load_weights(self):
         self.load_state_dict(torch.load(weight_path))
         self.eval()
-    
+            
     def train_weights(self, epochs=100):
         rewards = []
         scores = []
@@ -85,13 +93,10 @@ class DQN(nn.Module):
             total_reward = 0
             obs, done, reward, info  = self.env.reset()
         
-            possible_states = self.env.get_all_states()
+            # [states, actions]
             
             
-        
-            #while not done:
-                
-                #action, state,         
+
     
     def adjust_weights(self, epochs=100, batch_size=512):
         
