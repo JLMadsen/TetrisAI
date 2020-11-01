@@ -4,8 +4,26 @@ import csv
 import numpy as np
 import time
 from Imitation.data_handler import *
+from Imitation.agent import *
 
 env = Tetris({'reduced_shapes': 1})
+
+def train():
+
+    model = imitation_agent(env)
+
+    x_train, y_train = read_data("1.csv")
+    x_train = torch.tensor(x_train).float()
+    y_train = torch.tensor(y_train).float()
+
+    optimizer = torch.optim.Adam(model.parameters(), 0.001)
+    for epoch in range(3):
+        model.loss(x_train, y_train).backward()  # Compute loss gradients
+        optimizer.step()  # Perform optimization by adjusting W and b,
+        optimizer.zero_grad()  # Clear gradients for next step
+ 
+
+    #print("accuracy = %s" % model.accuracy(x_test, y_test))
 
 def main(manual=1):
 
@@ -45,4 +63,5 @@ def main(manual=1):
         print(scores)
 
 if __name__ == "__main__":
+    train()
     main()
