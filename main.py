@@ -7,25 +7,35 @@ from Imitation.data_handler import *
 from Imitation.agent import *
 
 env = Tetris({'reduced_shapes': 1})
+model = imitation_agent(env)
+
+learning_rate = 0.01
+epochs = 10000
 
 def train():
 
-    model = imitation_agent(env)
-
-    x_train, y_train = read_data("1.csv")
+    x_train, y_train = read_data("train.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
-    optimizer = torch.optim.Adam(model.parameters(), 0.001)
-    for epoch in range(3):
+    x_test, y_test = read_data("test.csv")
+    x_test = torch.tensor(x_test).float()
+    y_test = torch.tensor(y_test).float()
+
+    optimizer = torch.optim.Adam(model.parameters(), learning_rate)
+    for epoch in range(epochs):
+        
+        if not epoch % 1000:
+            print(epoch)
+
         model.loss(x_train, y_train).backward()  # Compute loss gradients
         optimizer.step()  # Perform optimization by adjusting W and b,
         optimizer.zero_grad()  # Clear gradients for next step
  
 
-    #print("accuracy = %s" % model.accuracy(x_test, y_test))
+    print("accuracy = %s" % model.accuracy(x_test, y_test))
 
-def main(manual=1):
+def main(manual=0):
 
     if manual:
         while 1:
@@ -48,10 +58,11 @@ def main(manual=1):
             state, reward, done, info = env.reset()
             
             while not done:
-                
-                action = env.action_sample             
+                state = torch.tensor(state).unsqueeze(0).float()
+                print(model.f(state))
+                action = (model.f(state)).argmax(1)          
                 state, reward, done, info = env.step(action)
-                
+
                 env.render()
                 time.sleep(0.1 if e < 2 else 0)
                 
@@ -64,4 +75,6 @@ def main(manual=1):
 
 if __name__ == "__main__":
     train()
+    model.save_weights()
+    #model.load_weights()
     main()
