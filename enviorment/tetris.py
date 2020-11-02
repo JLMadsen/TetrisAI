@@ -27,9 +27,10 @@ class Tetris():
     def __init__(self, config=None):
         
         self.config = {
-            'hard_drop': 1,     # Action.DOWN goes all the way down
-            'gravity': 0,       # Piece moves down after all moves
-            'reduced_shapes': 0 # lettris
+            'hard_drop': 1,        # Action.DOWN goes all the way down
+            'gravity': 0,          # Piece moves down after all moves
+            'reduced_shapes': 0,   # Replace shapes with reduced shapes
+            'score_multiplier': 5  # cleared_lines ^ score_multiplier
         }
         
         if config is not None:
@@ -159,6 +160,9 @@ class Tetris():
                 self.state.insert(0, [0 for _ in range(self.game_columns)])
                 reward += 1
 
+        if 'score_multiplier' in config and config['score_multiplier'] != 0:
+            reward **= config['score_multiplier']
+            
         return reward
     
     

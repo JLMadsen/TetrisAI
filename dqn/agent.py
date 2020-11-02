@@ -14,13 +14,22 @@ import torchvision.transforms as T
 
 from dqn.memory import Memory
 
+"""
+https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+https://jonathan-hui.medium.com/rl-dqn-deep-q-network-e207751f7ae4
+https://drive.google.com/file/d/0BxXI_RttTZAhVUhpbDhiSUFFNjg/view
+"""
+
 class DQN(nn.Module):
     
     def __init__(self, env):
         super(DQN, self).__init__()
         
         self.env = env
-        
+        self.Transition = namedtuple(
+                        'Transition',
+                        ('state', 'action', 'next_state', 'reward'))
+
         # learning rate
         self.alpha = .001
         
@@ -51,7 +60,8 @@ class DQN(nn.Module):
         )
 
 
-        """nn.ReLU(),
+        """
+            nn.ReLU(),
             nn.Conv2d(1, 1, (1, 5)),
             nn.ReLU(),
             nn.Linear(env.action_space, 1),
@@ -128,4 +138,5 @@ class DQN(nn.Module):
         train_x = []
         train_y = []
     
+        # TODO
     

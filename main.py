@@ -45,19 +45,21 @@ def main(manual=0, load_weights=False, plot=True):
             
             while not done:
                 
-                action = model.policy(state)                
+                action = model.policy(state) 
+                
+                               
                 if isinstance(action, list):
                     for a in action:
                         state, reward, done, info = env.step(a)
                         score += reward
                 else:
-                    print('main: action:', actionName(action))
+                    print('main: action:', actionName(action), action)
                     state, reward, done, info = env.step(action)
                     score += reward
 
+
                 env.render()
                 time.sleep(0.07 if e < 0 else 0)
-                
                 
             if score != 0:
                 scores.append(score)
