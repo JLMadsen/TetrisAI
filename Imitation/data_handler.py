@@ -24,6 +24,8 @@ def read_data(filename):
         reader = csv.reader(csvfile)
         for row in reader:
             x_values.append(eval(row[0]))
-            y_values.append(int(row[1]))
+            temp = [0]*5
+            temp[int(row[1])] = 1
+            y_values.append(temp)
 
     return x_values, y_values

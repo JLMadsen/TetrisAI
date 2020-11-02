@@ -9,9 +9,9 @@ class imitation_agent(nn.Module):
         self.env = env
 
         # Model layers (includes initialized model variables):
-        self.conv = nn.Conv2d(2, 1, (20, 10))
-        self.conv2 = nn.Conv2d(1, 1, (1, 5))
-        self.dense = nn.Linear(env.action_space, 1)
+        self.conv = nn.Conv2d(2, 32, (20, 10))
+        self.conv2 = nn.Conv2d(32, 64, (1, 5))
+        self.dense = nn.Linear(64, env.action_space)
         self.ReLU = nn.ReLU()
         
 
@@ -21,11 +21,12 @@ class imitation_agent(nn.Module):
         x = self.conv(x)
         print(2, x.shape)
         x = self.ReLU(x)
-        x = self.conv2(x)
+        #x = self.conv2(x)
         print(3, x.shape)
-        x = self.ReLU(x)
+        #x = self.ReLU(x)
         x = self.dense(x)
-        x = self.ReLU(x)
+        #x = self.ReLU(x)
+        print(4, x.shape)
         return x
 
     # Predictor
