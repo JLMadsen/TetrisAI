@@ -88,16 +88,25 @@ class DQN(nn.Module):
         scores = []
         steps = 0 # if we want to limit training
         
+        self.epsilon = self.upper_epsilon
+        epsilon_decay = (self.upper_epsilon - self.lower_epsilon) / epochs
+
         for e in range(1):
+            self.epsilon -= epsilon_decay
             
             total_reward = 0
             obs, done, reward, info  = self.env.reset()
         
-            # [states, actions]
-            
-            
+            while not done:
 
-    
+                done = True
+
+                # TODO
+
+
+
+
+    # Replay memory games
     def adjust_weights(self, epochs=100, batch_size=512):
         
         if len(self.memory) < batch_size:
