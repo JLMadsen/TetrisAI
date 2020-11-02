@@ -5,7 +5,7 @@ Modellen bruker openAI gym mens spillet blir laget.
 
 # Enviorment
 
-Implementerer openAI standarden.
+Implementerer Tetris etter openAI standarden.
 
 - Step
 - Reset
@@ -13,5 +13,5 @@ Implementerer openAI standarden.
 
 ![mvp](./imgs/tetris.png)
 
-# Model
+# AI: Pascal
 
