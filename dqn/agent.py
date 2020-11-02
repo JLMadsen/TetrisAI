@@ -47,11 +47,16 @@ class DQN(nn.Module):
         self.model = nn.Sequential(
             nn.Conv2d(2, 1, (20, 10)),
             nn.ReLU(),
+            nn.Linear(1, env.action_space)#, 1)
+        )
+
+
+        """nn.ReLU(),
             nn.Conv2d(1, 1, (1, 5)),
             nn.ReLU(),
             nn.Linear(env.action_space, 1),
             nn.ReLU(),
-        )
+        )"""
         
         #self.optimizer = optim.Adam(self.parameters, self.alpha)
         
@@ -63,15 +68,13 @@ class DQN(nn.Module):
     
     def policy(self, state):
         
-        if random.uniform(0, 1) < self.epsilon and 0:
+        if random.uniform(0, 1) < self.epsilon:
             return self.env.action_sample
         else:
             
-            states, actions, rewards = self.env.get_all_states(state)
-            
-            #for state, action, rewards in zip(states, actions):
-                
-            return actions[np.argmax(rewards)]    
+            # Check all states and choose max reward
+            #states, actions, rewards = self.env.get_all_states(state)                
+            #return actions[np.argmax(rewards)]    
                 
             print((action := self.forward(state)))
             return np.argmax(action.detach().numpy())
