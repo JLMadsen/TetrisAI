@@ -40,6 +40,10 @@ Dersom den blir straffet for å lage dype hull blir den bedre.
 
 # AI: Imitation
 
-# AI:
+# AI: Natural selection
+
+Løste mange problemer som hadde med utregning av verdier for valg av beste move å gjøre.
+Likevel er det fortsatt noen problemer. 
+Har også prøvd litt andre verdier men det er fortsatt en eller flere bugs som ødelegger valg av move.
 
 
