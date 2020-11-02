@@ -388,6 +388,7 @@ class Tetris():
 
     # for "simulating" steps
     def save_checkpoint(self):
+        
         return [
             copy.deepcopy(self.state),
             copy.deepcopy(self.current_piece),
@@ -415,8 +416,9 @@ class Tetris():
                 
         rewards = [0]*len(actions)
                 
+                
+        checkpoint = self.save_checkpoint()
         for i, action_sublist in enumerate(actions):
-            checkpoint = self.save_checkpoint()
             
             state = None
             for action in action_sublist:
@@ -426,7 +428,7 @@ class Tetris():
                 rewards[i] += reward * 50
                 
             states.append(state[0])
-            self.load_checkpoint(checkpoint)
+            self.load_checkpoint(copy.deepcopy(checkpoint))
             
         for i, state in enumerate(states):
             rewards[i] += sum(self.heuristic_value(state))
