@@ -4,11 +4,12 @@ from dqn.agent import DQN
 
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
-env = Tetris({'reduced_shapes': 0})
+env = Tetris({'reduced_shapes': 1})
 model = DQN(env)
 
-def main(manual=0, load_weights=False):
+def main(manual=0, load_weights=False, plot=True):
 
     if manual:
         while 1:
@@ -20,7 +21,7 @@ def main(manual=0, load_weights=False):
                 
     else:
         scores = []
-        epoch = 10_000
+        epoch = 10
 
         #if load_weights:
         #    model.load_weights()
@@ -29,7 +30,7 @@ def main(manual=0, load_weights=False):
         
         for e in range(epoch):
             
-            if not e%500:
+            if not e%10:
                 print('Epoch:', e)
             
             score = 0
@@ -41,19 +42,24 @@ def main(manual=0, load_weights=False):
                 if isinstance(action, list):
                     for a in action:
                         state, reward, done, info = env.step(a)
+                        score += reward
                 else:
                     state, reward, done, info = env.step(action)
+                    score += reward
 
-                env.render()
-                time.sleep(0.07 if e < 2 else 0)
+                #env.render()
+                #time.sleep(0.07 if e < 0 else 0)
                 
-                score += reward
                 
             if score != 0:
                 scores.append(score)
                 
         print(scores)
-        model.save_weights('_new')
+        #model.save_weights('_new')
+        
+        if plot:
+            plt.plot(list(range(len(scores))), scores)
+            plt.show()
 
 if __name__ == "__main__":
     try:
@@ -64,3 +70,18 @@ if __name__ == "__main__":
     
     finally:
         env.quit()
+        
+"""
+
+Spørsmål:
+
+Hva skal NN ta inn?
+    
+    State + action
+    
+    heuristic values
+
+Gi reward for brikke plassering?
+
+
+"""
