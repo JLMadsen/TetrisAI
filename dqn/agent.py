@@ -68,16 +68,24 @@ class DQN(nn.Module):
     
     def policy(self, state):
         
-        if random.uniform(0, 1) < self.epsilon:
+        if random.uniform(0, 1) < self.epsilon and 0:
             return self.env.action_sample
         else:
             
             # Check all states and choose max reward
             #states, actions, rewards = self.env.get_all_states(state)                
-            #return actions[np.argmax(rewards)]    
+            #return actions[np.argmax(rewards)]
+
+            actions = self.forward(state)
+
+            actions = actions.detach().numpy()
+
+            actions = actions[0][0][0]
+
+            print(actions)
+
+            return np.argmax(actions)
                 
-            print((action := self.forward(state)))
-            return np.argmax(action.detach().numpy())
     
     def save_weights(self, suffix=''):
         torch.save(self.state_dict(), weight_path+suffix)
