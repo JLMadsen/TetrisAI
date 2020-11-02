@@ -1,6 +1,7 @@
 import math
 import random
 import numpy as np
+from collections import namedtuple
 from copy import deepcopy
 from pathlib import Path
 mod_path = Path(__file__).parent
@@ -83,8 +84,8 @@ class DQN(nn.Module):
         else:
             
             # Check all states and choose max reward
-            #states, actions, rewards = self.env.get_all_states(state)                
-            #return actions[np.argmax(rewards)]
+            states, actions, rewards = self.env.get_all_states(state)                
+            return actions[np.argmax(rewards)]
 
             actions = self.forward(state)
 
