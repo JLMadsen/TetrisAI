@@ -57,7 +57,7 @@ class DQN(nn.Module):
         self.model = nn.Sequential(
             nn.Conv2d(2, 1, (20, 10)),
             nn.ReLU(),
-            nn.Linear(1, env.action_space)#, 1)
+            nn.Linear(1, env.action_space)
         )
 
 
@@ -69,7 +69,8 @@ class DQN(nn.Module):
             nn.ReLU(),
         )"""
         
-        #self.optimizer = optim.Adam(self.parameters, self.alpha)
+        self.optimizer = optim.Adam(self.model.parameters(), self.alpha)
+        #self.loss = F.smooth_l1_loss
         
     def forward(self, x):
         if not torch.is_tensor(x):
@@ -101,43 +102,30 @@ class DQN(nn.Module):
     def save_weights(self, suffix=''):
         torch.save(self.state_dict(), weight_path+suffix)
 
-    def load_weights(self):
-        self.load_state_dict(torch.load(weight_path))
+    def load_weights(self, suffix=''):
+        self.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
             
-    def train_weights(self, epochs=100):
-        rewards = []
-        scores = []
-        steps = 0 # if we want to limit training
-        
-        self.epsilon = self.upper_epsilon
-        epsilon_decay = (self.upper_epsilon - self.lower_epsilon) / epochs
-
-        for e in range(1):
-            self.epsilon -= epsilon_decay
-            
-            total_reward = 0
-            obs, done, reward, info  = self.env.reset()
-        
-            while not done:
-
-                done = True
-
-                # TODO
-
-
-
-
-    # Replay memory games
-    def adjust_weights(self, epochs=100, batch_size=512):
+    def train_weights(self, batch_size=512):
         
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)
-               
+                    
+        if not batch_size:
+            return
+
         batch = self.memory.sample(batch_size)
+        batch = self.Transition(*zip(*batch))
+
+        #non_final_mask
+        #non_final_mask_states
+                
+        state_batch  = torch.cat(  [torch.tensor(s) for s in batch.state ]  )
+        action_batch = torch.cat(  [torch.tensor(a) for a in batch.action]  )
+        reward_batch = torch.cat(  [torch.tensor(r) for r in batch.reward]  )
         
-        train_x = []
-        train_y = []
-    
-        # TODO
-    
+        
+        
+        
+        
+        

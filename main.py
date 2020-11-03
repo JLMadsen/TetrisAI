@@ -16,7 +16,13 @@ def actionName(action):
         if isinstance(value, int) and value == action:
             return attr
 
-def main(manual=0, load_weights=False, plot=True):
+
+manual = 0
+load_weights = 0
+plot = 1
+train = 1
+
+def main():
 
     if manual:
         while 1:
@@ -37,8 +43,7 @@ def main(manual=0, load_weights=False, plot=True):
         
         for e in range(epoch):
             
-            if not e%10:
-                print('Epoch:', e)
+            if not e%10: print('Epoch:', e)
             
             score = 0
             state, reward, done, info = env.reset()
@@ -62,6 +67,8 @@ def main(manual=0, load_weights=False, plot=True):
 
                 env.render()
                 time.sleep(0.07 if e < 0 else 0)
+                
+                if train: agent.train_weights()
                 
             if score != 0:
                 scores.append(score)
