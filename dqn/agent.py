@@ -62,22 +62,26 @@ class DQN(nn.Module):
                 (1, 1)
         """
                 
-        self.model = nn.Sequential(
+        self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, (20, 10)),
             nn.ReLU(),
             nn.Conv2d(32, 64, (1, 1)),
             nn.ReLU(),
             nn.Linear(1, env.action_space)
         )
-                
-        self.optimizer = optim.Adam(self.model.parameters(), self.alpha)
+        
+        self.cached_q_net = deepcopy(self.q_net)
+        self.optimizer = optim.Adam(self.q_net.parameters(), self.alpha)
+        self.loss = nn.MSELoss()
+        self.loss_temp = 0
+        self.loss_count = 0
         #self.loss = F.smooth_l1_loss
         
     def forward(self, x):
         if not torch.is_tensor(x):
             x = torch.Tensor([x])
             
-        return self.model(x)
+        return self.q_net(x)
     
     def policy(self, state):
         
@@ -109,7 +113,43 @@ class DQN(nn.Module):
         self.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
             
-    def train_weights(self, batch_size=512):
+    def train_weights(self, batch_size=100):
+        if len(self.memory) < batch_size:
+            batch_size = len(self.memory)
+                    
+        if not batch_size:
+            return
+
+        batch = self.memory.sample(batch_size)
+        
+        for state, action, next_state, reward in batch:
+            state = torch.tensor([state])
+            reward = torch.tensor(reward)
+            
+            target = reward
+            
+            outputs = self.cached_q_net(next_state)
+            target = (reward + self.gamma * torch.max(outputs))
+            
+            target_f = self.q_net(state)
+            target_f[action] = target
+            
+            
+            prediction = self.q_net(state)
+            loss = self.loss(prediction, target_f)
+            self.loss_temp += float(loss)
+            self.loss_count += 1
+            
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()            
+            
+            
+            
+            
+            
+            
+    def train_weights2(self, batch_size=512):
         
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)
@@ -144,12 +184,4 @@ class DQN(nn.Module):
         self.optimizer.zero_grad()
         #self.loss.backward()
         self.optimizer.step()
-        
-        
-        
-        
-        
-        
-        
-        
         

@@ -202,11 +202,10 @@ class Tetris():
                     break
 
         elif action == Action.WAIT:
-            if not self.config['gravity']:
-                if not self.check_collision_down(next_position):
-                    next_position = [[y+1, x] for y, x in next_position]
-                else:
-                    placed = True
+            if not self.check_collision_down(next_position):
+                next_position = [[y+1, x] for y, x in next_position]
+            else:
+                placed = True
         
         self.tick += 1
         if not self.tick % self.config['fall_tick']:
