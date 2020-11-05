@@ -2,10 +2,18 @@
 
 # Veileder møte
 
+* Samme nettverk i DQN og Imitation
+* Blokken må gå ned automatisk etter en hvis tid
+* Kjøre samme rekkefølge av brikker
+* Parrallellprossesering
+* Leke med parameterene i nat-select
+* Begynne på rapport
 
 # Enviorment
 
 # AI: Imitation
+
+Fikk satt opp et nettverk som kjørte og trente. Fikk problem med at den satt seg fast enten helt til høyre eller helt til venstre. Men etter veileder møtet, la vi inn at den gikk ned av seg selv, og da ble det fikset. Måtte da skaffe ny data å trene på. Så blir det å utforske litt på learning rate og få den til å spele.
 
 # AI: Natural selection
 

@@ -40,6 +40,10 @@ Dersom den blir straffet for å lage dype hull blir den bedre.
 
 # AI: Imitation
 
+Startet arbeider med en imitation agent, satt først opp metoder for å lage og lese data til agenten.
+
+Begynte deretter å implementere selve agenten. Satt bare opp grunn strukturen. Neste uke må det jobbes med selve nettverket slik at det kan begynne å kjøre og faktisk trene
+
 # AI: Natural selection
 
 Løste mange problemer som hadde med utregning av verdier for valg av beste move å gjøre.
