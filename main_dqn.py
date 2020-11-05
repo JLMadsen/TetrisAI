@@ -28,10 +28,8 @@ def main():
     scores = []
     epoch = 100
 
-    #if load_weights:
-    #    agent.load_weights()
-    #else:
-    #    agent.train_weights()
+    if load_weights:
+        agent.load_weights()
     
     for e in range(epoch):
         
@@ -54,8 +52,10 @@ def main():
                 state, reward, done, info = env.step(action)
                 score += reward
 
-            experience = agent.Transition(old_state, action, state, reward)
-            agent.memory.append(experience)
+            #experience = agent.Transition(old_state, action, state, reward)
+            #agent.memory.append(experience)
+            
+            agent.memory.append([old_state, action, state, reward])
 
             env.render()
             time.sleep(0.07 if e < 0 else 0)
@@ -66,7 +66,7 @@ def main():
             scores.append(score)
             
     print(scores)
-    #agent.save_weights('_new')
+    agent.save_weights('_new')
     
     if plot and scores:
         plt.plot(list(range(len(scores))), scores)
