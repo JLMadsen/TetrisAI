@@ -9,12 +9,12 @@ from Imitation.agent import *
 env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
-learning_rate = 0.01
-epochs = 10000
+learning_rate = 0.1
+epochs = 100000
 
 def train():
 
-    x_train, y_train = read_data("train.csv")
+    x_train, y_train = read_data("train2.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
