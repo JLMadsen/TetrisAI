@@ -458,4 +458,4 @@ class Tetris():
         #print('covered cells:', covered_cells)
         #print('evenness:     ', evenness)
         
-        return [-covered_cells*2, -evenness]
+        return [-covered_cells*2, -evenness*2]

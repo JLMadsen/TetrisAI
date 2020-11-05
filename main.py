@@ -5,9 +5,11 @@ from dqn.agent import DQN
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+import torch
 
-env = Tetris({'reduced_shapes': 0})
-agent = DQN(env)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+env = Tetris({'reduced_shapes': 1})
+agent = DQN(env)#.to(device)
 
 def actionName(action):
     attrs = [a for a in dir(env.actions) if not a.startswith('__')]
@@ -30,7 +32,6 @@ def main():
             done = False
             while not done:
                 state, action, done = env.render(1)
-                
                 
     else:
         scores = []
