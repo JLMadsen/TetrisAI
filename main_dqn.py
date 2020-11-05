@@ -1,15 +1,16 @@
-from enviorment.tetris import Tetris
-
-from dqn.agent import DQN
-
 import numpy as np
 import time
 import matplotlib.pyplot as plt
 import torch
+import sys
+import copy
+
+from enviorment.tetris import Tetris
+from dqn.agent import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-env = Tetris({'reduced_shapes': 1})
+env = Tetris({'reduced_shapes':0})
 agent = DQN(env)#.to(device)
 
 def actionName(action):
@@ -26,43 +27,43 @@ train = 1
 def main():
 
     scores = []
-    epoch = 100
+    epoch = 1_000
 
     if load_weights:
         agent.load_weights()
+    else:
+        agent.init_eps(epoch)
     
     for e in range(epoch):
         
-        if not e%10: print('Epoch:', e)
+        if not e%(epoch//100): 
+            print('\nTraining:' + str(round(e/epoch*100, 2)) + '%')
+            print('Highscore:'+ str(env.highscore))
         
         score = 0
+        action = 0
         state, reward, done, info = env.reset()
         
         while not done:
             old_state = state
             
-            action = agent.policy(state) 
-            
-            if isinstance(action, list):
-                for a in action:
-                    state, reward, done, info = env.step(a)
-                    score += reward
-            else:
-                print('main: action:', actionName(action), action)
-                state, reward, done, info = env.step(action)
-                score += reward
-
-            #experience = agent.Transition(old_state, action, state, reward)
-            #agent.memory.append(experience)
+            action = agent.policy(state)
+            state, reward, done, info = env.step(action)
+            score += reward
             
             agent.memory.append([old_state, action, state, reward])
 
-            env.render()
-            time.sleep(0.07 if e < 0 else 0)
+            if e > epoch - 10:
+                print('Action:', actionName(action))
+                env.render()
+                time.sleep(0.05)
             
-        if train: agent.train_weights()
+        if train:
+            agent.epsilon -= agent.epsilon_decay
+            #agent.cached_q_net = copy.deepcopy(agent.q_net)
+            agent.train_weights()
             
-        if score != 0:
+        if score:
             scores.append(score)
             
     print(scores)

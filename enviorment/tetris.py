@@ -5,6 +5,9 @@ OBSERVATION = OBSERVATION
 NB! MARIUS, STATE != OBSERVATION
 """
 
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import pygame as pg
 import pygame.font
 import copy

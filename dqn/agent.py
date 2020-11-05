@@ -27,9 +27,6 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
         
         self.env = env
-        self.Transition = namedtuple(
-                        'Transition',
-                        ('state', 'action', 'next_state', 'reward'))
 
         # learning rate
         self.alpha = .001
@@ -40,6 +37,7 @@ class DQN(nn.Module):
         # exploration rate
         self.upper_epsilon = 1
         self.lower_epsilon = .01
+        self.epsilon_decay = 0
         self.epsilon = self.upper_epsilon
         
         self.memory = Memory()
@@ -75,7 +73,6 @@ class DQN(nn.Module):
         self.loss = nn.MSELoss()
         self.loss_temp = 0
         self.loss_count = 0
-        #self.loss = F.smooth_l1_loss
         
     def forward(self, x):
         if not torch.is_tensor(x):
@@ -83,36 +80,39 @@ class DQN(nn.Module):
             
         return self.q_net(x)
     
+    def brute(self, state):
+        # Check all states and choose max reward
+        states, actions, rewards = self.env.get_all_states(state)
+        return actions[np.argmax(rewards)]
+    
+    def init_eps(self, epochs):
+        self.epsilon_decay = (self.upper_epsilon - self.lower_epsilon) / epochs
+    
     def policy(self, state):
         
         # https://docs.scipy.org/doc//numpy-1.10.4/reference/generated/numpy.random.choice.html
         
-        if random.uniform(0, 1) < self.epsilon and 0:
+        if random.uniform(0, 1) < self.epsilon:
+            
             return self.env.action_sample
         else:
             
-            # Check all states and choose max reward
-            #states, actions, rewards = self.env.get_all_states(state)                
-            #return actions[np.argmax(rewards)]
-
             actions = self.forward(state)
-
             actions = actions.detach().numpy()
-
             actions = actions[0][0][0]
-
-            print(actions)
-
             return np.argmax(actions)
-                
     
     def save_weights(self, suffix=''):
         torch.save(self.state_dict(), weight_path+suffix)
-
+    
+    def ex(self, tens):
+        return tens[0][0][0]
+        
     def load_weights(self, suffix=''):
         self.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
-            
+    
+    # https://github.com/CogitoNTNU/vicero/blob/678f4f139788cb9be149f6d9651d93ca737aeccd/vicero/algorithms/deepqlearning.py#L140
     def train_weights(self, batch_size=100):
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)
@@ -123,65 +123,21 @@ class DQN(nn.Module):
         batch = self.memory.sample(batch_size)
         
         for state, action, next_state, reward in batch:
-            state = torch.tensor([state])
-            reward = torch.tensor(reward)
+            state = torch.tensor([state]).float()
+            next_state = torch.tensor([next_state]).float()
+            reward = torch.tensor(reward).float()
             
             target = reward
             
-            outputs = self.cached_q_net(next_state)
+            outputs = self.ex(self.cached_q_net(next_state))
             target = (reward + self.gamma * torch.max(outputs))
             
-            target_f = self.q_net(state)
+            target_f = self.ex(self.q_net(state))
             target_f[action] = target
             
-            
-            prediction = self.q_net(state)
+            prediction = self.ex(self.q_net(state))
             loss = self.loss(prediction, target_f)
-            self.loss_temp += float(loss)
-            self.loss_count += 1
             
             self.optimizer.zero_grad()
             loss.backward()
-            self.optimizer.step()            
-            
-            
-            
-            
-            
-            
-    def train_weights2(self, batch_size=512):
-        
-        if len(self.memory) < batch_size:
-            batch_size = len(self.memory)
-                    
-        if not batch_size:
-            return
-
-        batch = self.memory.sample(batch_size)
-        #batch = [self.Transition(*zip(*b)) for b in batch]
-
-        #non_final_mask
-        #non_final_mask_states
-        
-        return
-        
-        print(batch)
-        
-        state_batch  = torch.cat([torch.tensor(s[0]) for s in batch])
-        action_batch = torch.cat([torch.tensor(s[1]) for s in batch])
-        reward_batch = torch.cat([torch.tensor(s[2]) for s in batch])
-        
-        print(action_batch)
-        
-        #state_batch  = torch.cat(  [torch.tensor(s) for s in batch[0] ]  )
-        #action_batch = torch.cat(  [torch.tensor(a) for a in batch.action]  )
-        #reward_batch = torch.cat(  [torch.tensor(r) for r in batch.reward]  )
-        
-        
-        # do stuff
-        
-        
-        self.optimizer.zero_grad()
-        #self.loss.backward()
-        self.optimizer.step()
-        
+            self.optimizer.step()
