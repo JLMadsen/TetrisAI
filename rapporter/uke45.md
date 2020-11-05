@@ -5,6 +5,29 @@
 
 # Enviorment
 
+Implementert metoder for å lagre state slik at agentene kan simulere trekk.
+
+```py
+checkpoint = self.save_checkpoint()
+
+# do stuff
+
+self.load_checkpoint(checkpoint)
+
+```
+
+# AI: DQN
+
+For å trene det nevrale nettverket lager vi en replay buffer hvor man kan hente ut tidligere trekk
+
+```py
+batch = self.memory.sample(batch_size)
+
+for state, action, next_state, reward in batch:
+    
+    # learn
+```
+
 # AI: Imitation
 
 # AI: Natural selection
