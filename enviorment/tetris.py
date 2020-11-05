@@ -26,9 +26,9 @@ class Tetris():
         
         self.config = {
             'hard_drop': 1,        # Action.DOWN goes all the way down
-            'gravity': 0,          # Piece moves down after all moves
             'reduced_shapes': 0,   # Replace shapes with reduced shapes
-            'score_multiplier': 0  # cleared_lines ^ score_multiplier
+            'score_multiplier': 0, # cleared_lines ^ score_multiplier
+            'fall_tick': 5,        # how many steps before fall down 1
         }
         
         if config is not None:
@@ -58,7 +58,6 @@ class Tetris():
         self.score = None
         self.attempt = 0
         self.tick = 0
-        self.fall_tick = 5
        
     def clone(self):
         tetris = Tetris()
@@ -210,7 +209,7 @@ class Tetris():
                     placed = True
         
         self.tick += 1
-        if not self.tick % self.fall_tick:
+        if not self.tick % self.config['fall_tick']:
             if not self.check_collision_down(next_position):
                 next_position = [[y+1, x] for y, x in next_position]
             else:
