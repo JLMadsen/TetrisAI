@@ -10,6 +10,7 @@ import pygame.font
 import copy
 import numpy as np
 import sys
+import time
 
 from pathlib import Path
 mod_path = Path(__file__).parent
@@ -24,9 +25,10 @@ class Tetris():
     def __init__(self, config=None):
         
         self.config = {
-            'hard_drop': 1,     # Action.DOWN goes all the way down
-            'gravity': 0,       # Piece moves down after all moves
-            'reduced_shapes': 0 # lettris
+            'hard_drop': 1,        # Action.DOWN goes all the way down
+            'reduced_shapes': 0,   # Replace shapes with reduced shapes
+            'score_multiplier': 0, # cleared_lines ^ score_multiplier
+            'fall_tick': 5,        # how many steps before fall down 1
         }
         
         if config is not None:
@@ -55,6 +57,7 @@ class Tetris():
         self.highscore = 0
         self.score = None
         self.attempt = 0
+        self.tick = 0
        
     def clone(self):
         tetris = Tetris()
@@ -66,7 +69,7 @@ class Tetris():
         tetris.next_piece = copy.deepcopy(self.next_piece)
 
         return tetris
-        
+                
     # defines observation
     def discretization(self):
         grid_layer = copy.deepcopy(self.state)
@@ -76,7 +79,7 @@ class Tetris():
         for y, x in self.current_shape:
             piece_layer[y][x] = 1
             
-        return [grid_layer, piece_layer]
+        return [grid_layer, piece_layer] # timing layer for drop
         
     @property
     def action_sample(self):
@@ -130,7 +133,7 @@ class Tetris():
         rotation = 0
         shape = self.shapes.ALL[piece][rotation]
         return shape, piece, rotation
-    
+        
     def check_cleared_lines(self):
         reward = 0
         
@@ -140,12 +143,15 @@ class Tetris():
                 self.state.insert(0, [0 for _ in range(self.game_columns)])
                 reward += 1
 
+        if 'score_multiplier' in self.config and self.config['score_multiplier'] != 0:
+            reward **= self.config['score_multiplier']
+            
         return reward
-    
+        
     def check_loss(self):
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
-            
-    def step(self, action):      
+                        
+    def step(self, action):
         reward = 0
         done = False
         info = ''
@@ -202,8 +208,8 @@ class Tetris():
                 else:
                     placed = True
         
-        if self.config['gravity']:
-            # go down one tile after all moves
+        self.tick += 1
+        if not self.tick % self.config['fall_tick']:
             if not self.check_collision_down(next_position):
                 next_position = [[y+1, x] for y, x in next_position]
             else:
@@ -338,8 +344,7 @@ class Tetris():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
-                
-
+            
             if manual and event.type == pg.KEYDOWN:
                 if event.key == pg.K_LEFT:
                     action = Action.LEFT
@@ -351,12 +356,16 @@ class Tetris():
                     action = Action.ROTATE
                 if event.key == pg.K_SPACE:
                     action = Action.WAIT
+                    
+                self.get_all_states()
 
                 state, _, done, _ = self.step(action)
                     
-
         pg.display.update()
         return state, action, done
+    
+    def quit(self):
+        pg.quit()
     
     def __initView(self):
         self.cell_size = 25
@@ -366,6 +375,7 @@ class Tetris():
 
         self.window_height = self.window_width = 600
 
+        self.pg = pg
         pg.init()
         pg.display.set_caption('TETRIS')
 
@@ -376,3 +386,78 @@ class Tetris():
 
         self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
         self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
+
+    # for "simulating" steps
+    def save_checkpoint(self):
+        return [
+            copy.deepcopy(self.state),
+            copy.deepcopy(self.current_piece),
+            copy.deepcopy(self.current_rotation),
+            copy.deepcopy(self.current_shape),
+            copy.deepcopy(self.next_piece),
+            copy.deepcopy(self.next_shape),
+            copy.deepcopy(self.next_rotation),
+            copy.deepcopy(self.score),
+            copy.deepcopy(self.tick)]
+        
+    def load_checkpoint(self, save):
+        save = copy.deepcopy(save)
+        self.state,self.current_piece,self.current_rotation,self.current_shape,self.next_piece,self.next_shape,self.next_rotation,self.score,self.tick = save
+
+    def get_all_states(self, display=True):
+        
+        states = []
+        actions = []
+        
+        for r in range(1, len(self.shapes.ALL[self.current_piece]) + 1):
+            for i in range(self.game_columns):
+                actions.append([self.actions.ROTATE]*r)      
+                traverse = self.actions.LEFT if (i-(self.game_columns//2)) < 0 else self.actions.RIGHT
+                actions[-1] += [traverse] * (i if i < (self.game_columns//2) else i-(self.game_columns//2)+1)
+                actions[-1].append(self.actions.DOWN)
+                
+        rewards = [0]*len(actions)
+                
+        checkpoint = self.save_checkpoint()
+        for i, action_sublist in enumerate(actions):
+            
+            state = None
+            for action in action_sublist:
+                state, reward, done, _ = self.step(action)
+                #self.render()
+                #time.sleep(.01)
+                rewards[i] += reward * 50
+                
+            states.append(state[0])
+            self.load_checkpoint(checkpoint)
+            
+        for i, state in enumerate(states):
+            rewards[i] += sum(self.heuristic_value(state))
+
+        return states, actions, rewards
+    
+    def heuristic_value(self, state):
+        
+        # evenness, total diff between column heigts
+        reverse = list(reversed((range(len(state)))))
+        heights = [0 for _ in range(len(state[0]))]
+        for y, row in enumerate(state):
+            for x, cell in enumerate(row):
+                if not heights[x] and cell:
+                    heights[x] = reverse[y] + 1
+
+        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
+        
+        # covered cells, empty cells with filled cell above
+        covered_cells = 0
+        for y, row in enumerate(state):
+            for x, cell in enumerate(row):
+                if not cell:
+                    if y > 0 and state[y-1][x] != 0:
+                        covered_cells += 1
+
+        
+        #print('covered cells:', covered_cells)
+        #print('evenness:     ', evenness)
+        
+        return [-covered_cells*2, -evenness*2]
