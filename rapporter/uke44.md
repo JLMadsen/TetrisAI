@@ -30,13 +30,21 @@ I main
 
 # AI: DQN
 
-Uten riktige vekter ser man fort at den spiller feil.
+Startet med å modellere det nevrale nettverket til DQN modellen.
 
-![wells](./imgs/wells.gif)
+Vi forholder oss til en enkel modell så lenge den fungerer.
 
-Dersom den blir straffet for å lage dype hull blir den bedre.
+```py
+self.q_net = nn.Sequential(
+    nn.Conv2d(2, 32, (20, 10)),
+    nn.ReLU(),
+    nn.Conv2d(32, 64, (1, 1)),
+    nn.ReLU(),
+    nn.Linear(1, env.action_space)
+)
+```
 
-![letris](./imgs/letris.gif)
+Prøver også ut forskjellige metoder for å gi en "score" basert på hvor brikken blir plassert.
 
 # AI: Imitation
 
