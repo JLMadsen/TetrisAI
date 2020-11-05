@@ -81,6 +81,8 @@ class DQN(nn.Module):
     
     def policy(self, state):
         
+        # https://docs.scipy.org/doc//numpy-1.10.4/reference/generated/numpy.random.choice.html
+        
         if random.uniform(0, 1) < self.epsilon and 0:
             return self.env.action_sample
         else:

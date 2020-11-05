@@ -19,7 +19,7 @@ def actionName(action):
             return attr
 
 
-manual = 0
+manual = 1
 load_weights = 0
 plot = 1
 train = 1
@@ -50,6 +50,7 @@ def main():
             state, reward, done, info = env.reset()
             
             while not done:
+                old_state = state
                 
                 action = agent.policy(state) 
                 
@@ -62,14 +63,13 @@ def main():
                     state, reward, done, info = env.step(action)
                     score += reward
 
-                #                                            next_state
-                experience = agent.Transition(state, action, None, reward)
+                experience = agent.Transition(old_state, action, state, reward)
                 agent.memory.append(experience)
 
                 env.render()
                 time.sleep(0.07 if e < 0 else 0)
                 
-                if train: agent.train_weights()
+            if train: agent.train_weights()
                 
             if score != 0:
                 scores.append(score)
@@ -106,6 +106,20 @@ Gi reward for brikke plassering?
 Sjekke enkelte action eller "slutt states"?
 
     se på alle states, fortere belønning, mindre å sjekke med NN
+
+
+
+
+
+
+
+
+
+ tick:
+    5 steg = 1 ned
+
+
+
 
 
 """

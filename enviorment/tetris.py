@@ -57,6 +57,8 @@ class Tetris():
         self.highscore = 0
         self.score = None
         self.attempt = 0
+        self.tick = 0
+        self.fall_tick = 5
        
     def clone(self):
         tetris = Tetris()
@@ -78,7 +80,7 @@ class Tetris():
         for y, x in self.current_shape:
             piece_layer[y][x] = 1
             
-        return [grid_layer, piece_layer]
+        return [grid_layer, piece_layer] # timing layer for drop
         
     @property
     def action_sample(self):
@@ -150,7 +152,7 @@ class Tetris():
     def check_loss(self):
         return sum([self.state[y][x] for y, x in self.current_shape]) != 0
                         
-    def step(self, action):      
+    def step(self, action):
         reward = 0
         done = False
         info = ''
@@ -207,8 +209,8 @@ class Tetris():
                 else:
                     placed = True
         
-        if self.config['gravity']:
-            # go down one tile after all moves
+        self.tick += 1
+        if not self.tick % self.fall_tick:
             if not self.check_collision_down(next_position):
                 next_position = [[y+1, x] for y, x in next_position]
             else:
@@ -396,11 +398,12 @@ class Tetris():
             copy.deepcopy(self.next_piece),
             copy.deepcopy(self.next_shape),
             copy.deepcopy(self.next_rotation),
-            copy.deepcopy(self.score)]
+            copy.deepcopy(self.score),
+            copy.deepcopy(self.tick)]
         
     def load_checkpoint(self, save):
         save = copy.deepcopy(save)
-        self.state,self.current_piece,self.current_rotation,self.current_shape,self.next_piece,self.next_shape,self.next_rotation,self.score = save
+        self.state,self.current_piece,self.current_rotation,self.current_shape,self.next_piece,self.next_shape,self.next_rotation,self.score,self.tick = save
 
     def get_all_states(self, display=True):
         
