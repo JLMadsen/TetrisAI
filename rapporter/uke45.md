@@ -22,6 +22,12 @@ self.load_checkpoint(checkpoint)
 
 ```
 
+Enviorment gjør om game state til obervasjon.
+
+Observasjonen har formen `(2, (20, 10))`
+
+Det består av 2 lag, et statisk lag med alle plasserte brikker, og et dynamisk lag med brikken som blir flyttet på.
+
 # AI: DQN
 
 For å trene det nevrale nettverket lager vi en replay buffer hvor man kan hente ut tidligere trekk
@@ -32,6 +38,19 @@ batch = self.memory.sample(batch_size)
 for state, action, next_state, reward in batch:
     
     # learn
+```
+
+Modifiserer NN med resize
+
+```py
+self.q_net = nn.Sequential(
+    nn.Conv2d(2, 32, (20, 10)),
+    nn.ReLU(),
+    nn.Conv2d(32, 64, (1, 1)),
+    nn.ReLU(),
+    Resize(-1, 64),
+    nn.Linear(64, env.action_space)
+)
 ```
 
 # AI: Imitation
