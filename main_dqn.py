@@ -20,8 +20,8 @@ def actionName(action):
         if isinstance(value, int) and value == action:
             return attr
 
-load_weights = 1
-plot = 1
+load_weights = 0
+plot = 0
 train = 1
 
 def main():
@@ -36,7 +36,7 @@ def main():
     
     for e in range(epoch):
         
-        if not e%(epoch//100): 
+        if not epoch//100 or not e%(epoch//100): 
             print('\nTraining: '+ str(round(e/epoch*100, 2)) +' %')
             print('Highscore : '+ str(env.highscore))
         
@@ -53,7 +53,9 @@ def main():
             state, reward, done, info = env.step(action)
             score += reward
             
-            agent.memory.append([old_state, action, state, (reward+time_alive)])
+            reward = (reward*100)+sum(env.heuristic_value(state))
+            #print(reward)
+            agent.memory.append([old_state, action, state, reward])
 
             if e > epoch - 10:
                 print('Action:', actionName(action))

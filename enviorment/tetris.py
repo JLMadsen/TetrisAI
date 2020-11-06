@@ -439,27 +439,22 @@ class Tetris():
         return states, actions, rewards
     
     def heuristic_value(self, state):
+        if len(state) == 2:
+            state = state[0]
         
-        # evenness, total diff between column heigts
         reverse = list(reversed((range(len(state)))))
         heights = [0 for _ in range(len(state[0]))]
-        for y, row in enumerate(state):
-            for x, cell in enumerate(row):
-                if not heights[x] and cell:
-                    heights[x] = reverse[y] + 1
-
-        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
-        
-        # covered cells, empty cells with filled cell above
         covered_cells = 0
         for y, row in enumerate(state):
             for x, cell in enumerate(row):
+                
+                if not heights[x] and cell:
+                    heights[x] = reverse[y] + 1
+                
                 if not cell:
                     if y > 0 and state[y-1][x] != 0:
                         covered_cells += 1
-
+                        
+        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
         
-        #print('covered cells:', covered_cells)
-        #print('evenness:     ', evenness)
-        
-        return [-covered_cells*2, -evenness*2]
+        return [-covered_cells, -evenness]
