@@ -98,7 +98,7 @@ class DQN(nn.Module):
         self.eval()
     
     # https://github.com/CogitoNTNU/vicero/blob/678f4f139788cb9be149f6d9651d93ca737aeccd/vicero/algorithms/deepqlearning.py#L140
-    def train_weights(self, batch_size=100):
+    def train_weights(self, batch_size=80):
         
         if len(self.memory) < batch_size:
             batch_size = len(self.memory)

@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 import torch
 import sys
 import copy
+from datetime import datetime
 
+import enviorment.util as util
+from enviorment.colors import green, fail, header, cyan, warning
 from enviorment.tetris import Tetris
 from dqn.agent import DQN
 
@@ -13,21 +16,17 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env = Tetris({'reduced_shapes':1})
 agent = DQN(env)#.to(device)
 
-def actionName(action):
-    attrs = [a for a in dir(env.actions) if not a.startswith('__')]
-    for attr in attrs:
-        value = env.actions.__getattribute__(env.actions, attr)
-        if isinstance(value, int) and value == action:
-            return attr
-
 load_weights = 0
 plot = 0
 train = 1
+epoch = 30_000
+epoch_time = 0
+start_time = 0
 
-def main():
+def train():
+    print(header('Train model: ')+cyan(str(epoch)))
 
     scores = []
-    epoch = 10_000
 
     if load_weights:
         agent.load_weights('_new')
@@ -35,11 +34,21 @@ def main():
     agent.init_eps(epoch)
     
     for e in range(epoch):
+        start_time = datetime.now()
         
-        if not epoch//100 or not e%(epoch//100): 
-            print('\nTraining: '+ str(round(e/epoch*100, 2)) +' %')
-            print('Highscore : '+ str(env.highscore))
-        
+        # print training info every 100th epoch
+        if not e%(epoch//100): 
+            print('\nTraining  : '+ str((progress := round(e/epoch*100, 2))) +' %')
+            print('Highscore : ' + green(str(env.highscore)))
+            if scores:
+                print('    avg       :', (sum(scores)/len(scores)))
+                if epoch_time:
+                    print('epoch time: {}'.format(epoch_time*epoch//100))
+                    print('eta       : {}'.format((epoch_time*(100-progress)*epoch//100)))
+                    
+                [print(s, end=', ') for s in [*map(lambda x: green(str(x)) if x == sorted(scores)[-1] else x, scores)]]
+            print()
+            
         score = 0
         action = 0
         time_alive = 0
@@ -53,38 +62,87 @@ def main():
             state, reward, done, info = env.step(action)
             score += reward
             
-            reward = (reward*100)+sum(env.heuristic_value(state))
+            """reward = (-0.8995652940240592 * util.totalHeight(state[0]) + 
+                       0.06425443268253492 * reward + 
+                      -0.3175211096545741 * util.holes(state[0]) + 
+                      -0.292974392382306 * util.evenness(state[0]))"""
+            
+            if done:
+                reward -= 100
+            else:
+                reward *= 100
+            
             #print(reward)
             agent.memory.append([old_state, action, state, reward])
 
-            if e > epoch - 10:
-                print('Action:', actionName(action))
-                env.render()
-                time.sleep(0.05)
+            #if e > epoch - 10:
+            #    print('Action: '+ cyan(env.actionName(action)))
+            #    env.render()
+            #    time.sleep(0.05)
             
+            epoch_time = datetime.now() - start_time
+            
+        # etter hver runde?
         if train:
-            if not e%(epoch/10):
-                agent.cached_q_net = copy.deepcopy(agent.q_net)
             
+            #if not e%10: # hvor ofte???
+            agent.cached_q_net = copy.deepcopy(agent.q_net)
+            
+            # Utforsk eps
             agent.epsilon -= agent.epsilon_decay
+            
             agent.train_weights()
             
         if score:
             scores.append(score)
             
     print(scores)
-    agent.save_weights('_new')
+    suffix = str(epoch//1000)+'k' if epoch>1000 else str(epoch)
+    agent.save_weights('_'+suffix+'_2')
     
     if plot and scores:
-        plt.plot(list(range(len(scores))), scores)
+        plt.plot([*range(len(scores))], scores)
+        plt.show()
+
+def run(weight=''):
+    print(header('Run trained model'))
+    scores = []
+    agent.load_weights(weight)
+    agent.epsilon = 0
+    try:
+        while 1:
+            state, reward, done, info = env.reset()
+            score = 0
+            while not done:
+                action = agent.policy(state)
+                state, reward, done, info = env.step(action)
+                print(warning(env.actionName(action)))
+                if reward:
+                    print(green('CLEARED LINE'))
+                env.render()
+                #time.sleep(0.01)
+            print(fail('RESET'))
+            if score:
+                scores.append(score)
+    # break loop on CTRL C or quit pygame window
+    except KeyboardInterrupt:
+        pass
+    except SystemExit:
+        pass
+            
+    if plot and scores:
+        plt.plot([*range(len(scores))], scores)
         plt.show()
 
 if __name__ == "__main__":
     try:
-        main()
+        #train() #7:00
+        run('_100k')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
     
     finally:
         env.quit()
+        
+
