@@ -9,8 +9,8 @@ from Imitation.agent import *
 env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
-learning_rate = 0.1
-epochs = 100000
+learning_rate = 0.01
+epochs = 1000000
 
 def train():
 
@@ -25,8 +25,8 @@ def train():
     optimizer = torch.optim.Adam(model.parameters(), learning_rate)
     for epoch in range(epochs):
         
-        if not epoch % 1000:
-            print(epoch)
+        if not epoch%(epochs//100): 
+            print('\nTraining: '+ str(round(epoch/epochs*100, 2)) +' %')
 
         model.loss(x_train, y_train).backward()  # Compute loss gradients
         optimizer.step()  # Perform optimization by adjusting W and b,
@@ -76,5 +76,5 @@ def main(manual=0):
 if __name__ == "__main__":
     train()
     model.save_weights()
-    #model.load_weights()
+    #model.load_weights("_1M_0.01_v2")
     main()

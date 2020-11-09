@@ -21,11 +21,10 @@ class imitation_agent(nn.Module):
     def logits(self, x):
 
         x = self.conv(x)
-        x = self.ReLU(x)
+        nn.ReLU(x)
         x = self.conv2(x)
-        x = self.ReLU(x)
+        nn.ReLU(x)
         x = self.dense(x.reshape(-1, 64*1*1))
-        x = self.ReLU(x)
         return x
 
     # Predictor
@@ -44,6 +43,6 @@ class imitation_agent(nn.Module):
     def save_weights(self, suffix=''):
         torch.save(self.state_dict(), weight_path+suffix)
 
-    def load_weights(self):
-        self.load_state_dict(torch.load(weight_path))
+    def load_weights(self, suffix=''):
+        self.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
