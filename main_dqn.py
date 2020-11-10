@@ -62,33 +62,21 @@ def train():
             state, reward, done, info = env.step(action)
             score += reward
             
-            """reward = (-0.8995652940240592 * util.totalHeight(state[0]) + 
-                       0.06425443268253492 * reward + 
-                      -0.3175211096545741 * util.holes(state[0]) + 
-                      -0.292974392382306 * util.evenness(state[0]))"""
-            
             if done:
                 reward -= 100
             else:
                 reward *= 100
             
-            #print(reward)
             agent.memory.append([old_state, action, state, reward])
-
-            #if e > epoch - 10:
-            #    print('Action: '+ cyan(env.actionName(action)))
-            #    env.render()
-            #    time.sleep(0.05)
             
             epoch_time = datetime.now() - start_time
             
         # etter hver runde?
         if train:
             
-            #if not e%10: # hvor ofte???
+            # hvor ofte?
             agent.cached_q_net = copy.deepcopy(agent.q_net)
             
-            # Utforsk eps
             agent.epsilon -= agent.epsilon_decay
             
             agent.train_weights()
@@ -108,7 +96,7 @@ def run(weight=''):
     print(header('Run trained model'))
     scores = []
     agent.load_weights(weight)
-    agent.epsilon = 0
+    agent.epsilon = -1
     try:
         while 1:
             state, reward, done, info = env.reset()
@@ -120,7 +108,7 @@ def run(weight=''):
                 if reward:
                     print(green('CLEARED LINE'))
                 env.render()
-                #time.sleep(0.01)
+                time.sleep(0.001)
             print(fail('RESET'))
             if score:
                 scores.append(score)
@@ -137,11 +125,10 @@ def run(weight=''):
 if __name__ == "__main__":
     try:
         #train() #7:00
-        run('_100k')
+        run('_60k')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
-    
     finally:
         env.quit()
         
