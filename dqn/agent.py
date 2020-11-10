@@ -5,7 +5,7 @@ from collections import namedtuple
 from copy import deepcopy
 from pathlib import Path
 mod_path = Path(__file__).parent
-weight_path = str(mod_path) + '/weights'
+weight_path = str(mod_path) + '/weights/weights'
 
 import torch
 import torch.nn as nn
