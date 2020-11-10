@@ -131,3 +131,5 @@ enviorment/testing.py
 
 .vscode
 testing.py
+dqn/weights_new
+dqn/weights_quit
