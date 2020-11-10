@@ -5,6 +5,9 @@ OBSERVATION = OBSERVATION
 NB! MARIUS, STATE != OBSERVATION
 """
 
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
 import pygame as pg
 import pygame.font
 import copy
@@ -252,7 +255,7 @@ class Tetris():
         for i, row in enumerate(self.state):
             for j, cell in enumerate(row):
 
-                color = Color.BLACK if cell == 0 else self.shapes.COLORS[cell - 1]
+                color = Color.BLACK if not cell else self.shapes.COLORS[cell - 1]
                 
                 rect = pg.Rect(self.game_margin_left + j * self.cell_size, 
                                self.game_margin_top  + i * self.cell_size, 
@@ -312,8 +315,12 @@ class Tetris():
                 
         for block in self.next_shape:
             center_y = 1 if self.next_piece == 0 else 0
+            center_x = 0
             
-            rect = pg.Rect(next_preview[0] + (block[1] - 2) * self.cell_size, 
+            if self.config['reduced_shapes'] and not self.next_piece:
+                center_x = 1
+
+            rect = pg.Rect(next_preview[0] + (block[1] - 2 + center_x) * self.cell_size, 
                            next_preview[1] + (block[0] + 1 + center_y) * self.cell_size, 
                            self.cell_size, 
                            self.cell_size)
@@ -436,27 +443,29 @@ class Tetris():
         return states, actions, rewards
     
     def heuristic_value(self, state):
+        if len(state) == 2:
+            state = state[0]
         
-        # evenness, total diff between column heigts
         reverse = list(reversed((range(len(state)))))
         heights = [0 for _ in range(len(state[0]))]
-        for y, row in enumerate(state):
-            for x, cell in enumerate(row):
-                if not heights[x] and cell:
-                    heights[x] = reverse[y] + 1
-
-        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
-        
-        # covered cells, empty cells with filled cell above
         covered_cells = 0
         for y, row in enumerate(state):
             for x, cell in enumerate(row):
+                
+                if not heights[x] and cell:
+                    heights[x] = reverse[y] + 1
+                
                 if not cell:
                     if y > 0 and state[y-1][x] != 0:
                         covered_cells += 1
-
+                        
+        evenness = sum([i for i in [abs(heights[-1]-heights[j]) for j in range(1, len(heights))]])
         
-        #print('covered cells:', covered_cells)
-        #print('evenness:     ', evenness)
-        
-        return [-covered_cells*2, -evenness*2]
+        return [-covered_cells, -evenness]
+    
+    def actionName(self, action):
+        attrs = [a for a in dir(self.actions) if not a.startswith('__')]
+        for attr in attrs:
+            value = self.actions.__getattribute__(self.actions, attr)
+            if isinstance(value, int) and value == action:
+                return attr
