@@ -30,16 +30,33 @@ I main
 
 # AI: DQN
 
-Uten riktige vekter ser man fort at den spiller feil.
+Startet med å modellere det nevrale nettverket til DQN modellen.
 
-![wells](./imgs/wells.gif)
+Vi forholder oss til en enkel modell så lenge den fungerer.
 
-Dersom den blir straffet for å lage dype hull blir den bedre.
+```py
+self.q_net = nn.Sequential(
+    nn.Conv2d(2, 32, (20, 10)),
+    nn.ReLU(),
+    nn.Conv2d(32, 64, (1, 1)),
+    nn.ReLU(),
+    nn.Linear(1, env.action_space)
+)
+```
 
-![letris](./imgs/letris.gif)
+Prøver også ut forskjellige metoder for å gi en "score" basert på hvor brikken blir plassert.
 
 # AI: Imitation
 
-# AI:
+Startet arbeider med en imitation agent, satt først opp metoder for å lage og lese data til agenten.
+
+Begynte deretter å implementere selve agenten. Satt bare opp grunn strukturen. Neste uke må det jobbes med selve nettverket slik at det kan begynne å kjøre og faktisk trene
+
+# AI: Natural selection
+
+Løste mange problemer som hadde med utregning av verdier for valg av beste move å gjøre.
+Likevel er det fortsatt noen problemer. 
+Har også prøvd litt andre verdier men det er fortsatt en eller flere bugs som ødelegger valg av move.
+
 
 
