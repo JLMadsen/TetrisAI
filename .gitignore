@@ -133,3 +133,4 @@ enviorment/testing.py
 testing.py
 dqn/weights_new
 dqn/weights_quit
+dqn/weights/weights_quit

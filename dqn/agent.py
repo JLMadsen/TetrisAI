@@ -54,13 +54,15 @@ class DQN(nn.Module):
         self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, 3),
             nn.ReLU(),
-            Print_shape('after first conv'),
-            nn.Conv2d(32, 64, (1,1)),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(32, 64, 3),
             nn.ReLU(),
-            Print_shape('after second conv'),
-            Resize(-1, 64),
+            nn.MaxPool2d(2, 2),
+            Resize(-1, 192),
+            nn.Linear(192, 64),
+            nn.ReLU(),
             nn.Linear(64, env.action_space),
-            Print_shape('finished')
+            nn.ReLU()
         )
         
         self.cached_q_net = deepcopy(self.q_net)
@@ -91,7 +93,6 @@ class DQN(nn.Module):
                 x = torch.Tensor([x])
                                     
             actions = self.q_net(x).argmax()
-            exit()
             return actions            
     
     def save_weights(self, suffix=''):
