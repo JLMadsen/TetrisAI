@@ -1,4 +1,7 @@
-# TetrisAI
+<p align="center">
+  <img src="./rapporter/imgs/tetrisAI.png" height=150 />
+</p>
+
 DQN playing Tetris.
 
 # Install
