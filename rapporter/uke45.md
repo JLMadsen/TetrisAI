@@ -14,11 +14,11 @@
 Implementert metoder for å lagre state slik at agentene kan simulere trekk.
 
 ```py
-checkpoint = self.save_checkpoint()
+checkpoint = env.save_checkpoint()
 
 # do stuff
 
-self.load_checkpoint(checkpoint)
+env.load_checkpoint(checkpoint)
 
 ```
 

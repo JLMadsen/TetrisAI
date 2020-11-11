@@ -14,7 +14,7 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 from dqn.memory import Memory
-from dqn.resize import Resize
+from dqn.modules import Resize, Print_shape
 
 """
 https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
@@ -52,12 +52,15 @@ class DQN(nn.Module):
         """
                 
         self.q_net = nn.Sequential(
-            nn.Conv2d(2, 32, (20, 10)),
+            nn.Conv2d(2, 32, 3),
             nn.ReLU(),
-            nn.Conv2d(32, 64, (1, 1)),
+            Print_shape('after first conv'),
+            nn.Conv2d(32, 64, (1,1)),
             nn.ReLU(),
+            Print_shape('after second conv'),
             Resize(-1, 64),
-            nn.Linear(64, env.action_space)
+            nn.Linear(64, env.action_space),
+            Print_shape('finished')
         )
         
         self.cached_q_net = deepcopy(self.q_net)
@@ -88,6 +91,7 @@ class DQN(nn.Module):
                 x = torch.Tensor([x])
                                     
             actions = self.q_net(x).argmax()
+            exit()
             return actions            
     
     def save_weights(self, suffix=''):

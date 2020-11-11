@@ -19,7 +19,7 @@ agent = DQN(env)#.to(device)
 load_weights = 0
 plot = 0
 train = 1
-epoch = 30_000
+epoch = 1_000
 epoch_time = 0
 start_time = 0
 
@@ -86,7 +86,7 @@ def train():
             
     print(scores)
     suffix = str(epoch//1000)+'k' if epoch>1000 else str(epoch)
-    agent.save_weights('_'+suffix+'_2')
+    agent.save_weights('_'+suffix)
     
     if plot and scores:
         plt.plot([*range(len(scores))], scores)
@@ -124,8 +124,8 @@ def run(weight=''):
 
 if __name__ == "__main__":
     try:
-        #train() #7:00
-        run('_60k')
+        train() #7:00
+        #run('_60k')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
