@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import torch
 import sys
 import copy
-from datetime import datetime
 
 import enviorment.util as util
 from enviorment.colors import green, fail, header, cyan, warning
@@ -19,7 +18,7 @@ agent = DQN(env)#.to(device)
 load_weights = 0
 plot = 0
 train = 1
-epoch = 1_000
+epoch = 60_000
 epoch_time = 0
 start_time = 0
 
@@ -34,18 +33,13 @@ def train():
     agent.init_eps(epoch)
     
     for e in range(epoch):
-        start_time = datetime.now()
         
         # print training info every 100th epoch
         if not e%(epoch//100): 
             print('\nTraining  : '+ str((progress := round(e/epoch*100, 2))) +' %')
             print('Highscore : ' + green(str(env.highscore)))
             if scores:
-                print('    avg       :', (sum(scores)/len(scores)))
-                if epoch_time:
-                    print('epoch time: {}'.format(epoch_time*epoch//100))
-                    print('eta       : {}'.format((epoch_time*(100-progress)*epoch//100)))
-                    
+                print('avg       :', (sum(scores)/len(scores)))
                 [print(s, end=', ') for s in [*map(lambda x: green(str(x)) if x == sorted(scores)[-1] else x, scores)]]
             print()
             
@@ -68,9 +62,7 @@ def train():
                 reward *= 100
             
             agent.memory.append([old_state, action, state, reward])
-            
-            epoch_time = datetime.now() - start_time
-            
+                        
         # etter hver runde?
         if train:
             
@@ -86,7 +78,7 @@ def train():
             
     print(scores)
     suffix = str(epoch//1000)+'k' if epoch>1000 else str(epoch)
-    agent.save_weights('_'+suffix)
+    agent.save_weights('_'+suffix+'_2')
     
     if plot and scores:
         plt.plot([*range(len(scores))], scores)
