@@ -10,15 +10,15 @@ env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
 learning_rate = 0.01
-epochs = 1000000
+epochs = 100000
 
 def train():
 
-    x_train, y_train = read_data("train2.csv")
+    x_train, y_train = read_data("train_jakob.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
-    x_test, y_test = read_data("test.csv")
+    x_test, y_test = read_data("test_jakob.csv")
     x_test = torch.tensor(x_test).float()
     y_test = torch.tensor(y_test).float()
 
@@ -59,13 +59,15 @@ def main(manual=0):
             
             while not done:
                 state = torch.tensor(state).unsqueeze(0).float()
-                print(model.f(state))
                 action = (model.f(state)).argmax(1)          
                 state, reward, done, info = env.step(action)
 
                 env.render()
-                time.sleep(0.1 if e < 2 else 0)
+                #time.sleep(0.1 if e < 2 else 0)
                 
+                if reward:
+                    print(reward, e)
+
                 score += reward
                 
             if score != 0:
@@ -76,5 +78,5 @@ def main(manual=0):
 if __name__ == "__main__":
     train()
     model.save_weights()
-    #model.load_weights("_1M_0.01_v2")
+    #model.load_weights("_hot")
     main()

@@ -4,6 +4,7 @@ import torchvision
 from pathlib import Path
 mod_path = Path(__file__).parent
 weight_path = str(mod_path) + '/weights'
+from Imitation.modules import Resize, Print_shape
 
 class imitation_agent(nn.Module):
     def __init__(self, env):
@@ -11,29 +12,27 @@ class imitation_agent(nn.Module):
 
         self.env = env
 
-        # Model layers (includes initialized model variables):
-        self.conv = nn.Conv2d(2, 32, (20, 10))
-        self.conv2 = nn.Conv2d(32, 64, (1, 1))
-        self.dense = nn.Linear(64 * 1 * 1, env.action_space)
-        self.ReLU = nn.ReLU()
-        
-
-    def logits(self, x):
-
-        x = self.conv(x)
-        nn.ReLU(x)
-        x = self.conv2(x)
-        nn.ReLU(x)
-        x = self.dense(x.reshape(-1, 64*1*1))
-        return x
+        self.q_net = nn.Sequential(
+            nn.Conv2d(2, 32, 3),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(32, 64, 3),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            Resize(-1, 192),
+            nn.Linear(192, 64),
+            nn.ReLU(),
+            nn.Linear(64, env.action_space),
+            nn.ReLU()
+        )
 
     # Predictor
     def f(self, x):
-        return torch.softmax(self.logits(x), dim=1)
+        return torch.softmax(self.q_net(x), dim=1)
 
     # Cross Entropy loss
     def loss(self, x, y):
-        return nn.functional.cross_entropy(self.logits(x), y.argmax(1))
+        return nn.functional.cross_entropy(self.q_net(x), y.argmax(1))
 
     # Accuracy
     def accuracy(self, x, y):
@@ -41,8 +40,8 @@ class imitation_agent(nn.Module):
 
 
     def save_weights(self, suffix=''):
-        torch.save(self.state_dict(), weight_path+suffix)
+        torch.save(self.q_net.state_dict(), weight_path+suffix)
 
     def load_weights(self, suffix=''):
-        self.load_state_dict(torch.load(weight_path+suffix))
+        self.q_net.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
