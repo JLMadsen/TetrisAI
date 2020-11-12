@@ -15,20 +15,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 env = Tetris({'reduced_shapes':1})
 agent = DQN(env)#.to(device)
 
-load_weights = 0
-plot = 0
-train = 1
-epoch = 60_000
-epoch_time = 0
-start_time = 0
-
-def train():
+def train(plot=0, epoch=60_000):
     print(header('Train model: ')+cyan(str(epoch)))
 
     scores = []
-
-    if load_weights:
-        agent.load_weights('_new')
         
     agent.init_eps(epoch)
     
@@ -36,10 +26,10 @@ def train():
         
         # print training info every 100th epoch
         if not e%(epoch//100): 
-            print('\nTraining  : '+ str((progress := round(e/epoch*100, 2))) +' %')
+            print('\nTraining  : '+ str((progress := round(e/epoch*100, 0))) +' %')
             print('Highscore : ' + green(str(env.highscore)))
             if scores:
-                print('avg       :', (sum(scores)/len(scores)))
+                print('avg       :', round(sum(scores)/len(scores), 2))
                 [print(s, end=', ') for s in [*map(lambda x: green(str(x)) if x == sorted(scores)[-1] else x, scores)]]
             print()
             
@@ -63,15 +53,12 @@ def train():
             
             agent.memory.append([old_state, action, state, reward])
                         
-        # etter hver runde?
-        if train:
-            
-            # hvor ofte?
-            agent.cached_q_net = copy.deepcopy(agent.q_net)
-            
-            agent.epsilon -= agent.epsilon_decay
-            
-            agent.train_weights()
+        # hvor ofte?
+        agent.cached_q_net = copy.deepcopy(agent.q_net)
+        
+        agent.epsilon -= agent.epsilon_decay
+        
+        agent.train_weights()
             
         if score:
             scores.append(score)
@@ -115,8 +102,13 @@ def run(weight=''):
         plt.show()
 
 if __name__ == "__main__":
+    plot = 0
+    epoch = 60_000
+    
     try:
-        train() #7:00
+        
+        train(plot, epoch)
+        
         #run('_60k')
         
     except KeyboardInterrupt:

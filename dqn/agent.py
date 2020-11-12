@@ -30,10 +30,10 @@ class DQN(nn.Module):
         self.env = env
 
         # learning rate
-        self.alpha = .01
+        self.alpha = .001
         
         # discount
-        self.gamma = .9
+        self.gamma = .95
         
         # exploration rate
         self.upper_epsilon = 1
@@ -61,8 +61,8 @@ class DQN(nn.Module):
             Resize(-1, 192),
             nn.Linear(192, 64),
             nn.ReLU(),
-            nn.Linear(64, env.action_space),
-            nn.ReLU()
+            nn.Linear(64, env.action_space)
+            #,Print_shape('out')
         )
         
         self.cached_q_net = deepcopy(self.q_net)
