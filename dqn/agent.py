@@ -96,10 +96,10 @@ class DQN(nn.Module):
             return actions            
     
     def save_weights(self, suffix=''):
-        torch.save(self.state_dict(), weight_path+suffix)
+        torch.save(self.q_net.state_dict(), weight_path+suffix)
     
     def load_weights(self, suffix=''):
-        self.load_state_dict(torch.load(weight_path+suffix))
+        self.q_net.load_state_dict(torch.load(weight_path+suffix))
         self.eval()
     
     # https://github.com/CogitoNTNU/vicero/blob/678f4f139788cb9be149f6d9651d93ca737aeccd/vicero/algorithms/deepqlearning.py#L140
