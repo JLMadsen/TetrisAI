@@ -19,7 +19,7 @@ env = Tetris({
 
 agent = DQN(env)#.to(device)
 
-def train(plot=0, epoch=1_000):
+def train(plot=0, epoch=60_000):
     print(header('Train model: ')+cyan(str(epoch)))
 
     scores = []
@@ -67,7 +67,7 @@ def train(plot=0, epoch=1_000):
             
     print(scores)
     suffix = str(epoch//1000)+'k' if epoch>1000 else str(epoch)
-    agent.save_weights('_'+suffix+'_2')
+    agent.save_weights('_'+suffix+'_3')
     
     if plot and scores:
         plt.plot([*range(len(scores))], scores)
@@ -109,9 +109,11 @@ if __name__ == "__main__":
     
     try:
         
+        agent.load_weights('_60k_2')
+        agent.upper_epsilon = agent.epsilon = .5
         train(plot, epoch) # 7:23
         
-        #run('_60k')
+        #run('_60k_2')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')

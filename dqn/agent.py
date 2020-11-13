@@ -80,6 +80,7 @@ class DQN(nn.Module):
     
     def init_eps(self, epochs):
         self.epsilon_decay = (self.upper_epsilon - self.lower_epsilon) / epochs
+        self.epsilon = self.upper_epsilon
     
     def policy(self, x):
         
