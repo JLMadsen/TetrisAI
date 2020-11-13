@@ -55,16 +55,16 @@ class DQN(nn.Module):
                 
         self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, 3),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.MaxPool2d(2, 2),
             nn.Conv2d(32, 64, 3),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.MaxPool2d(2, 2),
             Resize(-1, resize_to),
             nn.Linear(dense_shape, 64),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.Linear(64, env.action_space),
-            nn.ReLU()
+            nn.LeakyReLU(.1)
         )
         
         self.cached_q_net = deepcopy(self.q_net)

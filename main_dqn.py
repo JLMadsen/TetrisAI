@@ -19,7 +19,7 @@ env = Tetris({
 
 agent = DQN(env)#.to(device)
 
-def train(plot=0, epoch=60_000):
+def train(plot=0, epoch=1_000):
     print(header('Train model: ')+cyan(str(epoch)))
 
     scores = []
@@ -58,7 +58,7 @@ def train(plot=0, epoch=60_000):
         if not e%1000:
             agent.cached_q_net = copy.deepcopy(agent.q_net)
                 
-        agent.train_weights()
+        agent.train_weights(30)
         
         agent.epsilon -= agent.epsilon_decay
             
