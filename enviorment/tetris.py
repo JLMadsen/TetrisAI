@@ -30,6 +30,7 @@ class Tetris():
         self.config = {
             'hard_drop': 1,        # Action.DOWN goes all the way down
             'reduced_shapes': 0,   # Replace shapes with reduced shapes
+            'reduced_grid': 0,     # half grid size
             'score_multiplier': 0, # cleared_lines ^ score_multiplier
             'fall_tick': 5,        # how many steps before fall down 1
         }
@@ -51,9 +52,15 @@ class Tetris():
         self.actions = Action
         self.action_space = len(Action.ALL)
         
-        # Standard Tetris layout
-        self.game_rows = 20
-        self.game_columns = 10
+        if not self.config['reduced_grid']:
+            # Standard Tetris layout
+            self.game_rows = 20
+            self.game_columns = 10
+        else:
+            self.game_rows = 10
+            self.game_columns = 10
+        
+
 
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
@@ -241,7 +248,6 @@ class Tetris():
             self.__initView()
         
         self.screen.fill((1, 26, 56))
-        #self.screen.blit(self.background, (0, 0, self.window_height, self.window_width))
         
         # draw game window border
         rect = pg.Rect(self.game_margin_left - 1, 
@@ -389,9 +395,6 @@ class Tetris():
         self.clock = pg.time.Clock()
         self.screen.fill(Color.BLACK)
         self.font = pg.font.Font(None, 36)
-
-        self.background = pg.image.load(str(mod_path) + '/sprites/background.png')
-        self.background = pg.transform.scale(self.background, (self.window_height, self.window_width))
 
     # for "simulating" steps
     def save_checkpoint(self):

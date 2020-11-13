@@ -6,7 +6,10 @@ Run this for manual testing of Tetris Enviorment
 
 from enviorment.tetris import Tetris
 
-env = Tetris({'reduced_shapes': 0})
+env = Tetris({
+    'reduced_shapes':1,
+    'reduced_grid': 1
+})
 
 def main():
     while 1:

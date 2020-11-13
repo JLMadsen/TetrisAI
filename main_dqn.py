@@ -12,7 +12,11 @@ from dqn.agent import DQN
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-env = Tetris({'reduced_shapes':1})
+env = Tetris({
+     'reduced_shapes': 1
+    ,'reduced_grid': 1
+})
+
 agent = DQN(env)#.to(device)
 
 def train(plot=0, epoch=60_000):
@@ -39,7 +43,7 @@ def train(plot=0, epoch=60_000):
         state, reward, done, info = env.reset()
         
         while not done:
-            old_state = state
+            old_state = copy.deepcopy(state)
             time_alive += 1
             
             action = agent.policy(state)
@@ -47,18 +51,16 @@ def train(plot=0, epoch=60_000):
             score += reward
             
             if done:
-                reward -= 100
-            else:
-                reward *= 100
+                reward = -1
             
             agent.memory.append([old_state, action, state, reward])
                         
-        # hvor ofte?
-        agent.cached_q_net = copy.deepcopy(agent.q_net)
+        if not e%1000:
+            agent.cached_q_net = copy.deepcopy(agent.q_net)
+                
+        agent.train_weights()
         
         agent.epsilon -= agent.epsilon_decay
-        
-        agent.train_weights()
             
         if score:
             scores.append(score)
@@ -107,7 +109,7 @@ if __name__ == "__main__":
     
     try:
         
-        train(plot, epoch)
+        train(plot, epoch) # 7:23
         
         #run('_60k')
         

@@ -50,6 +50,8 @@ class DQN(nn.Module):
             kernel_size
                 (20, 10) = (height * width)
         """
+        
+        dense_shape = resize_to = 64 if env.config['reduced_grid'] else 192
                 
         self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, 3),
@@ -58,11 +60,11 @@ class DQN(nn.Module):
             nn.Conv2d(32, 64, 3),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
-            Resize(-1, 192),
-            nn.Linear(192, 64),
+            Resize(-1, resize_to),
+            nn.Linear(dense_shape, 64),
             nn.ReLU(),
-            nn.Linear(64, env.action_space)
-            #,Print_shape('out')
+            nn.Linear(64, env.action_space),
+            nn.ReLU()
         )
         
         self.cached_q_net = deepcopy(self.q_net)
