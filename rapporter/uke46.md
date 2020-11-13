@@ -3,7 +3,7 @@
 # Veileder møte
 
 - Test med mindre spillområde
-- 
+- Gjennomgang av kode
 
 # Enviorment
 
