@@ -45,3 +45,7 @@ self.q_net = nn.Sequential(
 Bytter ut ReLU med LeakyReLU og trener med 'reduced_grid'
 
 ![reducedgrid](./imgs/leakyReLU_reducedGrid_Letris.gif)
+
+Benchmark:
+
+![benchmark](./imgs/leakyReLU_ReducedGrid2.png)

@@ -73,7 +73,7 @@ def train(plot=0, epoch=60_000):
         plt.plot([*range(len(scores))], scores)
         plt.show()
 
-def run(weight='', attempts=2000):
+def run(weight='', attempts=300):
     print(header('Run trained model'))
     scores = []
     agent.load_weights(weight)
@@ -105,7 +105,8 @@ def run(weight='', attempts=2000):
     if scores:
         plt.plot([*range(len(scores))], scores, label='score')
         plt.legend()
-        plt.text(0.2, .94, 'Average score = '+ str(sum(scores)/len(scores)), fontsize=12, transform=plt.gcf().transFigure)
+        plt.text(0.2, .94, 'Average score = '+ str(round(sum(scores)/len(scores), 2)), fontsize=12, transform=plt.gcf().transFigure)
+        plt.text(0.6, .94, 'weight = '+ weight, fontsize=12, transform=plt.gcf().transFigure)
         plt.show()
 
 if __name__ == "__main__":
