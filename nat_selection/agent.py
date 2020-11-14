@@ -4,35 +4,30 @@ import random
 import time
 import sys
 import threading
+import matplotlib.pyplot as plt
 
 from enviorment.tetris import Tetris
-from nat_selection.model import Model
+from nat_selection.model import Model, weightsNum
 
 
 class Agent():
-    def __init__(self, cores=32, population=1000, selectPercent=0.1, mutationChance=0.05, trainingGames=5, maxTrainingMoves=100, replacePercent=0.3):
+    def __init__(self, cores=32, population=500, selectChance=0.1, mutateChance=0.05, games=5, moves=50, replacePercent=0.3):
         self.population = population
-        self.selectPercent = selectPercent
-        self.mutationChance = mutationChance
-        self.trainingGames = trainingGames
-        self.maxTrainingMoves = maxTrainingMoves
+        self.selectChance = selectChance
+        self.mutateChance = mutateChance
+        self.games = games
+        self.moves = moves
         self.replacePercent = replacePercent
         self.sem = threading.Semaphore(cores)
 
-    def __normalize(self, heightWeight, clearedWeight, holesWeight, evennessWeight):
-        norm = math.sqrt(heightWeight ** 2 + clearedWeight **
-                         2 + holesWeight ** 2 + evennessWeight ** 2)
-        heightWeight /= norm
-        clearedWeight /= norm
-        holesWeight /= norm
-        evennessWeight /= norm
-
-        return Model(heightWeight, clearedWeight, holesWeight, evennessWeight)
+    def __normalize(self, weights):
+        norm = math.sqrt(sum([pow(w, 2) for w in weights]))
+        return Model([*map(lambda x: x/norm, weights)])
 
     def __randomCandidate(self):
-        return self.__normalize(random.random() - 0.5, random.random() - 0.5, random.random() - 0.5, random.random() - 0.5)
+        return self.__normalize([(random.random() - 0.5) for _ in range(weightsNum)])
 
-    def __calculateFitnessThread(self, candidate, games, maxMoves, render=False):
+    def __calculateFitnessThread(self, candidate, games, maxMoves):
         self.sem.acquire()
         try:
             env = env = Tetris({'reduced_shapes': 0})
@@ -42,12 +37,7 @@ class Agent():
                 score = 0
 
                 for _ in range(maxMoves):
-                    if render:
-                        env.render()
-                        time.sleep(0.1)
-
                     actions = candidate.best(env)
-
                     for action in actions:
                         _, reward, done, _ = env.step(action)
                         score += reward
@@ -61,7 +51,7 @@ class Agent():
         finally:
             self.sem.release()
 
-    def __calculateFitness(self, candidates, games, maxMoves, render=False):
+    def __calculateFitness(self, candidates, games, maxMoves):
         msg = "0/" + str(len(candidates))
         sys.stdout.write(msg)
         sys.stdout.flush()
@@ -69,7 +59,7 @@ class Agent():
         threads = []
         for i in range(len(candidates)):
             thread = threading.Thread(target=self.__calculateFitnessThread, args=(
-                candidates[i], games, maxMoves, render))
+                candidates[i], games, maxMoves))
             threads.append(thread)
             thread.start()
 
@@ -80,75 +70,92 @@ class Agent():
             msg = str(i+1) + "/" + str(len(candidates))
             sys.stdout.write(msg)
             sys.stdout.flush()
+        print()
         return sorted(candidates, key=operator.attrgetter("fitness"))
 
     def __mutate(self, candidate):
         rand = random.randint(0, 3)
         changeVal = random.random() * 0.4 - 0.2
-        if rand == 0:
-            candidate.heightWeight += changeVal
-        elif rand == 1:
-            candidate.clearedWeight += changeVal
-        elif rand == 2:
-            candidate.holesWeight += changeVal
-        elif rand == 3:
-            candidate.evennessWeight += changeVal
+        candidate.weights[rand] += changeVal
 
-    def __tournamentSelectPair(self, candidates, selectPercent):
+    def __tournamentSelectPair(self, candidates, selectChance):
         randIndex = random.randint(
-            0, int(len(candidates) * (1-selectPercent)) - 1)
+            0, int(len(candidates) * (1-selectChance)) - 1)
         randPool = candidates[randIndex:int(
-            randIndex+(len(candidates)*selectPercent)) + 1]
+            randIndex+(len(candidates)*selectChance)) + 1]
         return randPool[-1], randPool[-2]
 
     def __crossOver(self, candidate1, candidate2):
         if candidate1.fitness == 0 and candidate2.fitness == 0:
-            candidate = Model((candidate1.heightWeight + candidate2.heightWeight)/2, (candidate1.clearedWeight + candidate2.clearedWeight)/2,
-                              (candidate1.holesWeight + candidate2.holesWeight)/2, (candidate1.evennessWeight + candidate2.evennessWeight)/2)
+            candidate = Model(
+                [((candidate1.weights[i] + candidate2.weights[i])/2) for i in range(weightsNum)])
         else:
-            candidate = Model(candidate1.fitness * candidate1.heightWeight + candidate2.fitness * candidate2.heightWeight, candidate1.fitness * candidate1.clearedWeight + candidate2.fitness * candidate2.clearedWeight,
-                              candidate1.fitness * candidate1.holesWeight + candidate2.fitness * candidate2.holesWeight, candidate1.fitness * candidate1.evennessWeight + candidate2.fitness * candidate2.evennessWeight)
+            candidate = Model([(candidate1.fitness * candidate1.weights[i] + candidate2.fitness *
+                                candidate2.weights[i]) for i in range(weightsNum)])
+        return self.__normalize(candidate.weights)
 
-        return self.__normalize(*candidate.getWeights())
-
-    def train(self, epochs, render=False):
+    def train(self, generations):
         candidates = []
-
+        avgWeights = []
+        avgScores = []
         for _ in range(self.population):
             candidates.append(self.__randomCandidate())
 
         print("Training initial candidates...")
         candidates = self.__calculateFitness(
-            candidates, self.trainingGames, self.maxTrainingMoves, render)
+            candidates, self.games, self.moves)
 
-        for epoch in range(epochs):
+        for gen in range(generations):
             newCandidates = []
 
-            print("\nEpoch {}".format(epoch + 1))
+            print("\nGeneration {}".format(gen + 1))
             print("Training new candidates...")
             # Create upto 30% of population size
             for _ in range(int(len(candidates) * self.replacePercent)):
                 candidate = self.__crossOver(
-                    *self.__tournamentSelectPair(candidates, self.selectPercent))
+                    *self.__tournamentSelectPair(candidates, self.selectChance))
 
-                if random.random() < self.mutationChance:
+                if random.random() < self.mutateChance:
                     self.__mutate(candidate)
-                candidate = self.__normalize(*candidate.getWeights())
+                candidate = self.__normalize(candidate.weights)
 
                 newCandidates.append(candidate)
 
             newCandidates = self.__calculateFitness(
-                newCandidates, self.trainingGames, self.maxTrainingMoves)
+                newCandidates, self.games, self.moves)
 
             candidates[:len(newCandidates)] = newCandidates
             candidates = sorted(candidates, key=operator.attrgetter("fitness"))
 
-            print("Average fitness {}".format(
-                sum([i.fitness for i in candidates]) / len(candidates)))
-            print("Average weights\nheight {} - cleared {} - holes {} - evenness {}".format(*
-                                                                                            [sum([i.getWeights()[j] for i in candidates]) / len(candidates) for j in range(len(candidates[0].getWeights()))]))
-            print("Highest fitness {}".format(candidates[-1].fitness))
-            print("Highest fitness weights\nheight {} - cleared {} - holes {} - evenness {}".format(
-                *candidates[-1].getWeights()))
-        # Return best candidate
+            avgScores.append(
+                sum([i.fitness for i in candidates]) / len(candidates))
+            avgWeights.append(
+                [(sum([c.weights[j] for c in candidates]) / len(candidates)) for j in range(weightsNum)])
+
+            labels = ["Sum height", "Cleared lines",
+                      "Holes", "Evenness", "Max height"]
+            print("\nAverage fitness {}".format(avgScores[-1]))
+            print("Average weights:")
+            print(" - ".join("{} {}".format(*i)
+                             for i in [*zip(labels, avgWeights[-1])]))
+            print("\nHighest fitness {}".format(candidates[-1].fitness))
+            print("Best weights:")
+            print(" - ".join("{} {}".format(*i)
+                             for i in [*zip(labels, candidates[-1].weights)]))
+            print(
+                "--------------------------------------------------------------------------------------------")
+
+        plt.plot([*range(len(avgScores))], avgScores)
+        plt.xlabel("Generation")
+        plt.ylabel("Score")
+        plt.show()
+
+        plt.figure(figsize=(7, 7))
+        for i in range(weightsNum):
+            plt.plot([*zip(*avgWeights)][i], label=labels[i])
+        plt.ylabel("Weight")
+        plt.xlabel("Generation")
+        plt.legend()
+        plt.show()
+
         return candidates[-1]

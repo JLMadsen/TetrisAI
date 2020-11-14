@@ -8,16 +8,15 @@ from nat_selection.model import Model
 import time
 from enviorment.tetris import Tetris
 
-env = Tetris({'reduced_shapes': 0})
+env = Tetris()
 
 
 def main():
+    agent = NatAgent(cores=4, population=10, moves=10)
 
-    agent = NatAgent(cores=4)
+    generations = 1000
 
-    epoch = 100_000
-
-    candidate = agent.train(epoch)
+    candidate = agent.train(2)
     #candidate = Model(-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306)
 
     while True:

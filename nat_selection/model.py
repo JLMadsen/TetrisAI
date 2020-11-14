@@ -4,16 +4,13 @@ import numpy as np
 import copy
 
 
-class Model():
-    def __init__(self, heightWeight, clearedWeight, holesWeight, evennessWeight):
-        self.heightWeight = heightWeight
-        self.clearedWeight = clearedWeight
-        self.holesWeight = holesWeight
-        self.evennessWeight = evennessWeight
-        self.fitness = 0
+weightsNum = len(util.heuristics)
 
-    def getWeights(self):
-        return self.heightWeight, self.clearedWeight, self.holesWeight, self. evennessWeight
+
+class Model():
+    def __init__(self, weights):
+        self.weights = weights
+        self.fitness = 0
 
     def best(self, env):
         checkpoint = env.save_checkpoint()
@@ -21,13 +18,19 @@ class Model():
         states, actions, rewards = env.get_all_states()
 
         scores = []
+
         for i, state in enumerate(states):
             for _, action in enumerate(actions[i]):
                 env.step(action)
 
-            scores.append(self.heightWeight * util.totalHeight(state) + self.clearedWeight *
-                          rewards[i] + self.holesWeight * util.holes(state) + self.evennessWeight * util.evenness(state))
+            util.heuristics[util.clearedLinesIndex] = rewards[i]
 
+            score = 0
+            for h, w in zip(util.heuristics, self.weights):
+                score += (
+                    float(h(state))*w if hasattr(h, '__call__') else float(h)*w)
+
+            scores.append(score)
             env.load_checkpoint(checkpoint)
 
         return actions[np.argmax(scores)]
