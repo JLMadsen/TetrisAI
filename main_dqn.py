@@ -14,12 +14,12 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env = Tetris({
      'reduced_shapes': 1
-    ,'reduced_grid': 1
+    ,'reduced_grid': 0
 })
 
 agent = DQN(env)#.to(device)
 
-def train(plot=0, epoch=60_000):
+def train(plot=0, epoch=60_000, suff=''):
     print(header('Train model: ')+cyan(str(epoch)))
 
     scores = []
@@ -67,12 +67,13 @@ def train(plot=0, epoch=60_000):
             
     print(scores)
     suffix = str(epoch//1000)+'k' if epoch>1000 else str(epoch)
-    agent.save_weights('_'+suffix+'_3')
+    agent.save_weights('_'+suffix+suff)
     
     if plot and scores:
         plt.plot([*range(len(scores))], scores)
         plt.show()
 
+import torch
 def run(weight='', attempts=300):
     print(header('Run trained model'))
     scores = []
@@ -87,12 +88,13 @@ def run(weight='', attempts=300):
             score = 0
             while not done:
                 action = agent.policy(state)
+                print(agent.q_net(torch.tensor([state]).float()).detach().numpy())
                 state, reward, done, info = env.step(action)
                 #print(warning(env.actionName(action)))
                 if reward:
                     score += reward
                     print(green('CLEARED LINE'))
-                #env.render()
+                env.render()
                 #time.sleep(0.001)
             print(fail('RESET'))
             scores.append(score)
@@ -111,15 +113,15 @@ def run(weight='', attempts=300):
 
 if __name__ == "__main__":
     plot = 0
-    epoch = 100_000
+    epoch = 60_000
     
     try:
         
-        #agent.load_weights('_60k_2')
+        agent.load_weights('_imitation_start')
         #agent.upper_epsilon = agent.epsilon = .5
-        #train(plot, epoch) # 7:23
+        train(plot, epoch, '_imitation') # 7:23
         
-        run('_60k_2')
+        #run('_60k_3')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
