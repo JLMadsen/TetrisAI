@@ -3,7 +3,7 @@ import torch.nn as nn
 import torchvision
 from pathlib import Path
 mod_path = Path(__file__).parent
-weight_path = str(mod_path) + '/weights'
+weight_path = str(mod_path) + '/weights/weights'
 from Imitation.modules import Resize, Print_shape
 
 class imitation_agent(nn.Module):
@@ -14,16 +14,16 @@ class imitation_agent(nn.Module):
 
         self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, 3),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.MaxPool2d(2, 2),
             nn.Conv2d(32, 64, 3),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.MaxPool2d(2, 2),
             Resize(-1, 192),
             nn.Linear(192, 64),
-            nn.ReLU(),
+            nn.LeakyReLU(.1),
             nn.Linear(64, env.action_space),
-            nn.ReLU()
+            nn.LeakyReLU(.1)
         )
 
     # Predictor

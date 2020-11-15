@@ -4,7 +4,7 @@ import csv
 import time
 
 start_time = str(time.time()).split(".")[0][-5:]
-filename = str(mod_path) + "/" + "data_" + start_time + ".csv" 
+filename = str(mod_path) + "/data/" + "data_" + start_time + ".csv" 
 
 def write_data(state, action):
 
@@ -15,7 +15,7 @@ def write_data(state, action):
 
 def read_data(filename):
 
-    filename = str(mod_path) + "/" + filename
+    filename = str(mod_path) + "/data/" + filename
     x_values = []
     y_values = []
 

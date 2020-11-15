@@ -9,8 +9,8 @@ from Imitation.agent import *
 env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
-learning_rate = 0.01
-epochs = 100000
+learning_rate = 0.1
+epochs = 60000
 
 def train():
 
@@ -78,5 +78,5 @@ def main(manual=0):
 if __name__ == "__main__":
     train()
     model.save_weights()
-    #model.load_weights("_hot")
+    #model.load_weights("_500k_0.01")
     main()
