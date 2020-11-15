@@ -33,3 +33,11 @@ def maxHeight(state):
 def evenness(state):
     heights = _getHeights(state)
     return sum([i for i in [abs(heights[j-1]-heights[j]) for j in range(1, len(heights))]])
+
+
+def placeholder(state):
+    return 0
+
+
+clearedLinesIndex = 1
+heuristics = [totalHeight, placeholder, holes, evenness, maxHeight]
