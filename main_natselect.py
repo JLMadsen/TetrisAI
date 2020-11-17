@@ -6,7 +6,7 @@ from nat_selection.model import Model
 import time
 from enviorment.tetris import Tetris
 
-env = Tetris()
+env = Tetris({'reduced_grid': 1, 'reduced_shapes': 1})
 
 
 def main():
@@ -14,8 +14,8 @@ def main():
 
     generations = 1000
 
-    candidate = agent.train(generations)
-    #candidate = Model(-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306)
+    #candidate = agent.train(generations)
+    candidate = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
 
     while True:
         score = 0
