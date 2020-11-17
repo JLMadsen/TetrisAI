@@ -97,7 +97,7 @@ def main():
     plt.xlabel('Actions')    
     
     plt.legend()
-    plt.savefig('comparison.png')
+    plt.savefig('./rapporter/imgs/comparison.png')
     plt.show()
         
 
