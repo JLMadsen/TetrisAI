@@ -14,13 +14,17 @@ epochs = 60000
 
 def train():
 
-    x_train, y_train = read_data("train_jakob.csv")
+    x_train, y_train = read_data("train_nat3.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
-    x_test, y_test = read_data("test_jakob.csv")
+    x_test, y_test = read_data("test_nat3.csv")
     x_test = torch.tensor(x_test).float()
     y_test = torch.tensor(y_test).float()
+
+    batches = 600
+    x_train_batches = torch.split(x_train, batches)
+    y_train_batches = torch.split(y_train, batches)
 
     optimizer = torch.optim.Adam(model.parameters(), learning_rate)
     for epoch in range(epochs):
@@ -28,9 +32,10 @@ def train():
         if not epoch%(epochs//100): 
             print('\nTraining: '+ str(round(epoch/epochs*100, 2)) +' %')
 
-        model.loss(x_train, y_train).backward()  # Compute loss gradients
-        optimizer.step()  # Perform optimization by adjusting W and b,
-        optimizer.zero_grad()  # Clear gradients for next step
+            for batch in range(len(x_train_batches)):
+                model.loss(x_train_batches[batch], y_train_batches[batch]).backward() 
+                optimizer.step()  # Perform optimization by adjusting W and b,
+                optimizer.zero_grad()  # Clear gradients for next step
  
 
     print("accuracy = %s" % model.accuracy(x_test, y_test))
@@ -76,7 +81,7 @@ def main(manual=0):
         print(scores)
 
 if __name__ == "__main__":
-    train()
-    model.save_weights()
-    #model.load_weights("_500k_0.01")
+    #train()
+    #model.save_weights()
+    model.load_weights("_60k_0.1_nat2_600")
     main()
