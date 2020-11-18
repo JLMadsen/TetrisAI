@@ -88,13 +88,13 @@ def run(weight='', attempts=300):
             score = 0
             while not done:
                 action = agent.policy(state)
-                print(agent.q_net(torch.tensor([state]).float()).detach().numpy())
+                #print(agent.q_net(torch.tensor([state]).float()).detach().numpy())
                 state, reward, done, info = env.step(action)
                 #print(warning(env.actionName(action)))
                 if reward:
                     score += reward
                     print(green('CLEARED LINE'))
-                env.render()
+                #env.render()
                 #time.sleep(0.001)
             print(fail('RESET'))
             scores.append(score)
@@ -117,11 +117,11 @@ if __name__ == "__main__":
     
     try:
         
-        agent.load_weights('_60k_0.1_nat2_600')
-        agent.upper_epsilon = agent.epsilon = .5
-        train(plot, epoch, '_imitation_2') # 10:30
+        #agent.load_weights('_60k_0.1_nat2_600')
+        #agent.upper_epsilon = agent.epsilon = .5
+        #train(plot, epoch, '_imitation_2') # 10:30
         
-        #run('_60k_2')
+        run('_60k_3')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
