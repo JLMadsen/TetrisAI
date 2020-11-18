@@ -26,6 +26,7 @@ class DQN(nn.Module):
     
     def __init__(self, env):
         super(DQN, self).__init__()
+        self.name = 'DQN'
         
         self.env = env
 

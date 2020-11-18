@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env = Tetris({
      'reduced_shapes': 1
-    ,'reduced_grid': 1
+    ,'reduced_grid': 0
 })
 
 agent = DQN(env)#.to(device)
@@ -117,11 +117,11 @@ if __name__ == "__main__":
     
     try:
         
-        #agent.load_weights('_imitation_start')
-        #agent.upper_epsilon = agent.epsilon = .5
-        #train(plot, epoch, '_imitation') # 7:23
+        agent.load_weights('_60k_0.1_nat2_600')
+        agent.upper_epsilon = agent.epsilon = .5
+        train(plot, epoch, '_imitation_2') # 10:30
         
-        run('_60k_2')
+        #run('_60k_2')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
