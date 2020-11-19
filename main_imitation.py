@@ -12,7 +12,7 @@ env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
 learning_rate = 0.1
-epochs = 60000
+epochs = 20000
 
 def train():
 
