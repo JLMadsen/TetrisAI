@@ -11,16 +11,16 @@ from nat_selection.model import Model
 env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
-learning_rate = 0.01
-epochs = 30000
+learning_rate = 0.1
+epochs = 60000
 
 def train():
 
-    x_train, y_train = read_data("train_nat3.csv")
+    x_train, y_train = read_data("train_nat1.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
-    x_test, y_test = read_data("test_nat3.csv")
+    x_test, y_test = read_data("test_nat1.csv")
     x_test = torch.tensor(x_test).float()
     y_test = torch.tensor(y_test).float()
 
@@ -34,10 +34,10 @@ def train():
         if not epoch%(epochs//100): 
             print('\nTraining: '+ str(round(epoch/epochs*100, 2)) +' %')
 
-            for batch in range(len(x_train_batches)):
-                model.loss(x_train_batches[batch], y_train_batches[batch]).backward() 
-                optimizer.step()  # Perform optimization by adjusting W and b,
-                optimizer.zero_grad()  # Clear gradients for next step
+        for batch in range(len(x_train_batches)):
+            model.loss(x_train_batches[batch], y_train_batches[batch]).backward() 
+            optimizer.step()  # Perform optimization by adjusting W and b,
+            optimizer.zero_grad()  # Clear gradients for next step
  
 
     print("accuracy = %s" % model.accuracy(x_test, y_test))
