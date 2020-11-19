@@ -4,6 +4,12 @@
 
 DQN playing Tetris.
 
+## Genetic algorithm vs Imitation + DQN
+
+<p align="center">
+  <img src="./rapporter/imgs/comparison.png" height=350 />
+</p>
+
 # Usage
 
 `main.py` for playing Tetris manually.
