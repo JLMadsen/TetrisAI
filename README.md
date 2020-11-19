@@ -2,8 +2,6 @@
   <img src="./rapporter/imgs/tetrisAI.png" height=150 />
 </p>
 
-DQN playing Tetris.
-
 ## Genetic algorithm vs Imitation + DQN
 
 <p align="center">
@@ -25,3 +23,7 @@ DQN playing Tetris.
 # Install
 
 > pip install -r requirements.txt
+
+and
+
+<a href="https://pytorch.org/">Pytorch</a>
