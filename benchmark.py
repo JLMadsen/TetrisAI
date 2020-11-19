@@ -2,8 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 from copy import deepcopy
+import time
+import torch
 
 from enviorment.tetris import Tetris
+
+from Imitation.agent import imitation_agent
 
 from nat_selection.model import Model
 
@@ -20,28 +24,28 @@ class randomAgent:
         return self.env.action_sample
 
 def main():
-    env = Tetris({'reduced_shapes': 1, 'reduced_grid': 1})
+    env = Tetris({'reduced_shapes': 1, 'reduced_grid': 0})
     
     agent1 = DQN(env)
-    agent1.load_weights('_60k_2')
+    agent1.load_weights('_60k_3')
     agent1.epsilon = -1
     agent1.name = 'DQN'
     
-    """agent1 = DQN(env)
-    agent1.load_weights('_60k_0.1_nat2_600')
-    agent1.epsilon = -1
-    agent1.name = 'Imitation'
-    
-    agent2 = DQN(env)
-    agent2.load_weights('_60k_imitation')
+    agent2 = imitation_agent(env)
+    agent2.load_weights('_60k_0.1_nat2_600')
     agent2.epsilon = -1
-    agent2.name = 'Imitation + DQN'"""
+    agent2.name = 'Imitation'
+    
+    agent3 = DQN(env)
+    agent3.load_weights('_60k_imitation')
+    agent3.epsilon = -1
+    agent3.name = 'Imitation + DQN'
         
-    agent3 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
+    #agent3 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
     
     agent4 = randomAgent(env)
         
-    agents = [agent1, agent3,  agent4]
+    agents = [agent1, agent2,  agent3, agent4]
     agent_labels = [a.name for a in agents]
     agent_scores = {}
     
@@ -76,6 +80,8 @@ def main():
                 
                 if isinstance(agent, Model):
                     action = agent.best(env)
+                elif isinstance(agent, imitation_agent):
+                    action = agent.f(state if torch.is_tensor(state) else torch.tensor(state).unsqueeze(0).float()).argmax(1)
                 else:
                     action = agent.policy(state)
                     
@@ -105,8 +111,10 @@ def main():
     plt.ylabel('Score')
     plt.xlabel('Actions')    
     
+    uuid = str(time.time()).split(".")[0][-5:]
+    
     plt.legend()
-    plt.savefig('./rapporter/imgs/comparison_4.png')
+    plt.savefig('./rapporter/imgs/comparison_'+uuid+'.png')
     plt.show()
         
 
