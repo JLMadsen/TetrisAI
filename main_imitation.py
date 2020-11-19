@@ -1,16 +1,18 @@
-from enviorment.tetris import Tetris
-
 import csv
 import numpy as np
 import time
+
+from enviorment.tetris import Tetris
 from Imitation.data_handler import *
 from Imitation.agent import *
+from nat_selection.agent import Agent as NatAgent
+from nat_selection.model import Model
 
 env = Tetris({'reduced_shapes': 1})
 model = imitation_agent(env)
 
-learning_rate = 0.1
-epochs = 60000
+learning_rate = 0.01
+epochs = 30000
 
 def train():
 
@@ -39,6 +41,7 @@ def train():
  
 
     print("accuracy = %s" % model.accuracy(x_test, y_test))
+
 
 def main(manual=0):
 
@@ -80,8 +83,25 @@ def main(manual=0):
                 
         print(scores)
 
+
+def generate_data(moves):
+    agent = NatAgent(cores=4)
+
+    candidate = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
+
+    state, reward, done, info = env.reset()
+
+    for move in range(moves):
+
+        action = candidate.best(env)
+        for a in action:
+            write_data(state, a)
+            state, reward, done, info = env.step(a)
+
+
 if __name__ == "__main__":
-    #train()
-    #model.save_weights()
-    model.load_weights("_60k_0.1_nat2_600")
+    train()
+    model.save_weights()
+    #model.load_weights("_60k_0.1_nat2_600")
     main()
+    #generate_data(40000)
