@@ -4,13 +4,15 @@ import torchvision
 from pathlib import Path
 mod_path = Path(__file__).parent
 weight_path = str(mod_path) + '/weights/weights'
-from Imitation.modules import Resize, Print_shape
+from dqn.modules import Resize, Print_shape
 
 class imitation_agent(nn.Module):
     def __init__(self, env):
         super(imitation_agent, self).__init__()
 
         self.env = env
+
+        dense_shape = resize_to = 64 if env.config['reduced_grid'] else 192
 
         self.q_net = nn.Sequential(
             nn.Conv2d(2, 32, 3),
@@ -19,8 +21,8 @@ class imitation_agent(nn.Module):
             nn.Conv2d(32, 64, 3),
             nn.LeakyReLU(.1),
             nn.MaxPool2d(2, 2),
-            Resize(-1, 192),
-            nn.Linear(192, 64),
+            Resize(-1, resize_to),
+            nn.Linear(dense_shape, 64),
             nn.LeakyReLU(.1),
             nn.Linear(64, env.action_space),
             nn.LeakyReLU(.1)
