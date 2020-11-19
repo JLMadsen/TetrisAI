@@ -6,7 +6,7 @@ from nat_selection.model import Model
 import time
 from enviorment.tetris import Tetris
 
-env = Tetris({'reduced_grid': 1, 'reduced_shapes': 1})
+env = Tetris({'reduced_grid': 0, 'reduced_shapes': 0})
 
 
 def main():
@@ -26,11 +26,12 @@ def main():
             action = candidate.best(env)
 
             for a in action:
+                env.render()
+                time.sleep(0.1)
                 state, reward, done, info = env.step(a)
                 score += reward
 
-            env.render()
-            time.sleep(0)
+            
 
 
 if __name__ == "__main__":
