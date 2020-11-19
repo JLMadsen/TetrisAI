@@ -24,6 +24,4 @@
 
 > pip install -r requirements.txt
 
-and
-
-<a href="https://pytorch.org/">Pytorch</a>
+and <a href="https://pytorch.org/" target="_blank">Pytorch</a>
