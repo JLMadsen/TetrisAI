@@ -9,40 +9,49 @@ from nat_selection.model import Model
 
 from dqn.agent import DQN
 
-plt_colors = ['r', 'g', 'b']
-plt_light_colors = ['pink', 'palegreen', 'powderblue']
+plt_colors = ['r', 'g', 'b', 'm']
+plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle']
 
 class randomAgent:
     def __init__(self, env):
         self.env = env
+        self.name = 'Random'
     def policy(self, *args):
         return self.env.action_sample
 
 def main():
-    env = Tetris({'reduced_shapes': 1, 'reduced_grid': 0})
-
+    env = Tetris({'reduced_shapes': 1, 'reduced_grid': 1})
+    
     agent1 = DQN(env)
+    agent1.load_weights('_60k_2')
+    agent1.epsilon = -1
+    agent1.name = 'DQN'
+    
+    """agent1 = DQN(env)
     agent1.load_weights('_60k_0.1_nat2_600')
     agent1.epsilon = -1
+    agent1.name = 'Imitation'
     
-    agent2 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
-
-    agent3 = randomAgent(env)
-
-    agent_labels = ['Imitation + DQN', 'Natural Selection', 'Random']
-    agents = [agent1, agent2, agent3]
+    agent2 = DQN(env)
+    agent2.load_weights('_60k_imitation')
+    agent2.epsilon = -1
+    agent2.name = 'Imitation + DQN'"""
+        
+    agent3 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
+    
+    agent4 = randomAgent(env)
+        
+    agents = [agent1, agent3,  agent4]
+    agent_labels = [a.name for a in agents]
     agent_scores = {}
+    
     sample = 5
     
     agents = [deepcopy(agents) for _ in range(sample)]
     agents = [a for n in agents for a in n]
     
-    """for a in agents:
-        print(a.__class__.__name__)
-    exit()"""
-    
     for agent in agents:
-        current_agent = agent.__class__.__name__
+        current_agent = agent.name
         
         max_actions = 2000
         actions = 0
@@ -80,9 +89,9 @@ def main():
                     agent_scores[current_agent][-1].append(reward)
                     actions+=1
 
-    agent_colors = sorted(agent_scores.keys())
     for agent, scores in agent_scores.items():
-        index = agent_colors.index(agent)
+
+        index = agent_labels.index(agent)
         
         scores = [*map(lambda x: np.cumsum(x).tolist(), scores)]
 
@@ -90,14 +99,14 @@ def main():
         
         for score in scores:
             plt.plot([*range(len(score))], score, c=plt_light_colors[index])
-
+            
         plt.plot([*range(len(avg))], avg, c=plt_colors[index], label=agent_labels[index])
         
     plt.ylabel('Score')
     plt.xlabel('Actions')    
     
     plt.legend()
-    plt.savefig('./rapporter/imgs/comparison_2.png')
+    plt.savefig('./rapporter/imgs/comparison_4.png')
     plt.show()
         
 
