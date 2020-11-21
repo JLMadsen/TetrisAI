@@ -8,19 +8,19 @@ from Imitation.agent import *
 from nat_selection.agent import Agent as NatAgent
 from nat_selection.model import Model
 
-env = Tetris({'reduced_shapes': 1})
+env = Tetris({'reduced_shapes': 0})
 model = imitation_agent(env)
 
 learning_rate = 0.1
-epochs = 20000
+epochs = 10000
 
 def train():
 
-    x_train, y_train = read_data("train_nat1.csv")
+    x_train, y_train = read_data("vanlig_train.csv")
     x_train = torch.tensor(x_train).float()
     y_train = torch.tensor(y_train).float()
 
-    x_test, y_test = read_data("test_nat1.csv")
+    x_test, y_test = read_data("vanlig_test.csv")
     x_test = torch.tensor(x_test).float()
     y_test = torch.tensor(y_test).float()
 
@@ -100,8 +100,8 @@ def generate_data(moves):
 
 
 if __name__ == "__main__":
-    train()
-    model.save_weights()
-    #model.load_weights("_60k_0.1_nat2_600")
+    #train()
+    #model.save_weights()
+    model.load_weights("")
     main()
-    #generate_data(40000)
+    #generate_data(400)

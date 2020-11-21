@@ -13,8 +13,8 @@ from nat_selection.model import Model
 
 from dqn.agent import DQN
 
-plt_colors = ['r', 'g', 'b', 'm']
-plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle']
+plt_colors = ['r', 'g', 'b', 'm', "c"]
+plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle', "skyblue" ]
 
 class randomAgent:
     def __init__(self, env):
@@ -24,32 +24,38 @@ class randomAgent:
         return self.env.action_sample
 
 def main():
-    env = Tetris({'reduced_shapes': 1, 'reduced_grid': 0})
+    env = Tetris({'reduced_shapes': 1})
+
     
-    agent1 = DQN(env)
-    agent1.load_weights('_60k_3')
+    agent1 = imitation_agent(env)
+    agent1.load_weights('_10k_0,1_nat1')
     agent1.epsilon = -1
-    agent1.name = 'DQN'
-    
+    agent1.name = '10k epoker 2k tupler 0.1 læringsrate'
+
     agent2 = imitation_agent(env)
-    agent2.load_weights('_60k_0.1_nat2_600')
+    agent2.load_weights('_10k_0.01_nat1')
     agent2.epsilon = -1
-    agent2.name = 'Imitation'
-    
-    agent3 = DQN(env)
-    agent3.load_weights('_60k_imitation')
+    agent2.name = '10k epoker 2k tupler 0.01 læringsrate'
+
+
+    agent3 = imitation_agent(env)
+    agent3.load_weights('_10k_0,1_nat2')
     agent3.epsilon = -1
-    agent3.name = 'Imitation + DQN'
+    agent3.name = '10k epoker 20k tupler 0.1 læringsrate'
+
+
+    agent4 = imitation_agent(env)
+    agent4.load_weights('_10k_0,01_nat2')
+    agent4.epsilon = -1
+    agent4.name = '10k epoker 20k tupler 0.01 læringsrate'
+
+
         
-    #agent3 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
-    
-    agent4 = randomAgent(env)
-        
-    agents = [agent1, agent2,  agent3, agent4]
+    agents = [agent1, agent2, agent3, agent4]
     agent_labels = [a.name for a in agents]
     agent_scores = {}
     
-    sample = 5
+    sample = 20
     
     agents = [deepcopy(agents) for _ in range(sample)]
     agents = [a for n in agents for a in n]
@@ -103,17 +109,18 @@ def main():
 
         avg = [sum(s)/len(s) for s in [*zip(*scores)]]
         
-        for score in scores:
-            plt.plot([*range(len(score))], score, c=plt_light_colors[index])
+        #for score in scores:
+            #plt.plot([*range(len(score))], score, c=plt_light_colors[index])
             
         plt.plot([*range(len(avg))], avg, c=plt_colors[index], label=agent_labels[index])
         
-    plt.ylabel('Score')
-    plt.xlabel('Actions')    
+    plt.ylabel('Poengsum')
+    plt.xlabel('Handlinger')    
     
     uuid = str(time.time()).split(".")[0][-5:]
     
     plt.legend()
+    plt.text(0.15, .94, 'Spill = '+ str(sample), fontsize=12, transform=plt.gcf().transFigure)
     plt.savefig('./rapporter/imgs/comparison_'+uuid+'.png')
     plt.show()
         
