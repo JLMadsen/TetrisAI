@@ -9,8 +9,8 @@ from nat_selection.model import Model
 
 from dqn.agent import DQN
 
-plt_colors = ['r', 'g', 'b', 'm']
-plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle']
+plt_colors = ['r', 'g', 'b', 'm', 'c']
+plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle', 'lightcyan']
 
 class randomAgent:
     def __init__(self, env):
@@ -27,25 +27,24 @@ def main():
     agent1.epsilon = -1
     agent1.name = 'DQN'
     
-    """agent1 = DQN(env)
-    agent1.load_weights('_60k_0.1_nat2_600')
-    agent1.epsilon = -1
-    agent1.name = 'Imitation'
+    agent2 = imitation_agent(env)
+    agent2.load_weights('_10k_01_nat1')
+    agent2.name = 'Imitation'
     
     agent2 = DQN(env)
     agent2.load_weights('_60k_imitation')
     agent2.epsilon = -1
-    agent2.name = 'Imitation + DQN'"""
+    agent2.name = 'Imitation + DQN'
         
-    agent3 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
+    agent4 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
     
-    agent4 = randomAgent(env)
+    agent5 = randomAgent(env)
         
-    agents = [agent1, agent3,  agent4]
+    agents = [agent1, agent2,  agent3, agent5]#, agent5]
     agent_labels = [a.name for a in agents]
     agent_scores = {}
     
-    sample = 5
+    sample = 20
     
     agents = [deepcopy(agents) for _ in range(sample)]
     agents = [a for n in agents for a in n]
@@ -98,15 +97,17 @@ def main():
         avg = [sum(s)/len(s) for s in [*zip(*scores)]]
         
         for score in scores:
-            plt.plot([*range(len(score))], score, c=plt_light_colors[index])
+            #plt.plot([*range(len(score))], score, c=plt_light_colors[index])
+            a=1
             
         plt.plot([*range(len(avg))], avg, c=plt_colors[index], label=agent_labels[index])
         
-    plt.ylabel('Score')
-    plt.xlabel('Actions')    
+    plt.ylabel('Poengsum')
+    plt.xlabel('Handlinger')    
     
     plt.legend()
-    plt.savefig('./rapporter/imgs/comparison_4.png')
+    plt.text(0.15, .5, 'Spill = '+ str(sample), fontsize=12, transform=plt.gcf().transFigure)
+    plt.savefig('./rapporter/imgs/comparison_'+uuid+'.png')
     plt.show()
         
 

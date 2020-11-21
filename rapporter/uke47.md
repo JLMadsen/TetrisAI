@@ -2,6 +2,8 @@
 
 Siste uke før innlevering.
 
+Ba om å få tilgang til NTNU maskin for trening da det tar flere timer å kjøre trening lokalt. Sendte mail den 4.nov og ble lagt til i systemet den 19.nov. Vi får desverre fortsatt ikke logget inn, det gjenstår en den kombinasjoner av parametre vi vil prøve.
+
 # Veileder møte
 
 
