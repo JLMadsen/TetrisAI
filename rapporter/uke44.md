@@ -56,7 +56,7 @@ Startet arbeider med en imitation agent, satt først opp metoder for å lage og 
 
 Begynte deretter å implementere selve agenten. Satt bare opp grunn strukturen. Neste uke må det jobbes med selve nettverket slik at det kan begynne å kjøre og faktisk trene
 
-# AI: Natural selection
+# AI: Genetisk algoritme
 
 Løste mange problemer som hadde med utregning av verdier for valg av beste move å gjøre.
 Meste av bugs hadde med indexer å gjøre da noen random funksjoner og prosentregninger endte opp med å være out of bounds.
