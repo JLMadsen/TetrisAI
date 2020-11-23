@@ -5,8 +5,8 @@
 ## Genetic algorithm vs Imitation + DQN
 
 <p align="center">
-  <img src="./rapporter/imgs/comparison1.png" height=350 />
-  <img src="./rapporter/imgs/comparison2.png" height=350 />
+  <img src="./rapporter/imgs/comparison1.png" height=300 />
+  <img src="./rapporter/imgs/comparison2.png" height=300 />
 </p>
 
 # Usage
