@@ -59,8 +59,10 @@ Begynte deretter å implementere selve agenten. Satt bare opp grunn strukturen. 
 # AI: Natural selection
 
 Løste mange problemer som hadde med utregning av verdier for valg av beste move å gjøre.
-Likevel er det fortsatt noen problemer. 
-Har også prøvd litt andre verdier men det er fortsatt en eller flere bugs som ødelegger valg av move.
+Meste av bugs hadde med indexer å gjøre da noen random funksjoner og prosentregninger endte opp med å være out of bounds.
+Likevel er det fortsatt noen problemer som fører til at det blir valgt feil trekk. 
+Har eksperimentert med forskellige testparametere men det er fortsatt en eller flere bugs som ødelegger valg av move.
+Det er ganske sikkert at feilen ligger innen henting av alle trekk, da jeg får riktige verdier under manuell spilling.
 
 
 
