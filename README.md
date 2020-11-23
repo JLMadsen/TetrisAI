@@ -25,3 +25,14 @@
 > pip install -r requirements.txt
 
 and <a href="https://pytorch.org/" target="_blank">Pytorch</a>
+
+# Config
+
+To edit Tetris behaviour change contructor params.
+
+```py
+env = Tetris({
+  'reduced_shapes': True,
+  'reduced_grid': True
+})
+```

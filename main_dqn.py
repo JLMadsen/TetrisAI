@@ -123,7 +123,7 @@ if __name__ == "__main__":
         #agent.upper_epsilon = agent.epsilon = .2
         train(plot, epoch, '_imitation_3') # 1400
         
-        #run('_30k_imitation_3')
+        #run('_60k_2')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
