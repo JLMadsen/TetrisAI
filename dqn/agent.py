@@ -31,10 +31,10 @@ class DQN(nn.Module):
         self.env = env
 
         # learning rate
-        self.alpha = .001
+        self.alpha = .01
         
         # discount
-        self.gamma = .95
+        self.gamma = .9
         
         # exploration rate
         self.upper_epsilon = 1

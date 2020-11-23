@@ -11,7 +11,7 @@ class Model():
     def __init__(self, weights):
         self.weights = weights
         self.fitness = 0
-        self.name = 'Natural Selection'
+        self.name = 'Genetisk algoritme'
 
     def best(self, env):
         checkpoint = env.save_checkpoint()

@@ -18,6 +18,10 @@ Derfor skal vi implementere en letter versjon av Tetris slik at vi kan sjekke mo
 
 # Enviorment
 
+Vi møter på en bug hvor når man roterer en brikke hender det at den flytter seg et steg nedover. Vi tror dette er pga måten brikke data er lagret og hentes.
+
+Issue: https://github.com/JLMadsen/TetrisAI/issues/5
+
 Implementerte config slik at det er enkelt å endre på ting
 
 I Tetris klassen

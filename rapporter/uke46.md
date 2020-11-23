@@ -49,3 +49,8 @@ Bytter ut ReLU med LeakyReLU og trener med 'reduced_grid'
 Benchmark:
 
 ![benchmark](./imgs/leakyReLU_ReducedGrid2.png)
+
+
+# Imitation
+
+Endret nettverket til akkurat det samme som DQN brukte i starten av uken. Så trening og testing. I slutten av uken endret nettverket seg fra ReLu til LeakyReLU, så da ble det enda mer trening og testing. 

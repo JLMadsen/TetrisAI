@@ -2,7 +2,12 @@
   <img src="./rapporter/imgs/tetrisAI.png" height=150 />
 </p>
 
-DQN playing Tetris.
+## Genetic algorithm vs Imitation + DQN
+
+<p align="center">
+  <img src="./rapporter/imgs/comparison1.png" height=300 />
+  <img src="./rapporter/imgs/comparison2.png" height=300 />
+</p>
 
 # Usage
 
@@ -19,3 +24,16 @@ DQN playing Tetris.
 # Install
 
 > pip install -r requirements.txt
+
+and <a href="https://pytorch.org/" target="_blank">Pytorch</a>
+
+# Config
+
+To edit Tetris behaviour change contructor params.
+
+```py
+env = Tetris({
+  'reduced_shapes': True,
+  'reduced_grid': True
+})
+```

@@ -52,13 +52,15 @@ def train(plot=0, epoch=60_000, suff=''):
             
             if done:
                 reward = -1
+            else:
+                reward *= 100
             
-            agent.memory.append([old_state, action, state, reward])
+            agent.memory.append([old_state, action, state, reward+time_alive])
                         
         if not e%1000:
             agent.cached_q_net = copy.deepcopy(agent.q_net)
                 
-        agent.train_weights(30)
+        agent.train_weights(200)
         
         agent.epsilon -= agent.epsilon_decay
             
@@ -94,7 +96,7 @@ def run(weight='', attempts=300):
                 if reward:
                     score += reward
                     print(green('CLEARED LINE'))
-                #env.render()
+                env.render()
                 #time.sleep(0.001)
             print(fail('RESET'))
             scores.append(score)
@@ -117,11 +119,11 @@ if __name__ == "__main__":
     
     try:
         
-        #agent.load_weights('_60k_0.1_nat2_600')
-        #agent.upper_epsilon = agent.epsilon = .5
-        #train(plot, epoch, '_imitation_2') # 10:30
+        agent.load_weights('_10k_01_nat1')
+        #agent.upper_epsilon = agent.epsilon = .2
+        train(plot, epoch, '_imitation_3') # 1400
         
-        run('_60k_3')
+        #run('_60k_2')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
