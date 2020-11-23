@@ -62,6 +62,7 @@ def main():
         
         max_actions = 4000
         actions = 0
+        # uncomment to seed each agent.
         #random.seed(420)
         #np.random.seed(420)
         if current_agent in agent_scores.keys():
@@ -108,8 +109,7 @@ def main():
         avg = [sum(s)/len(s) for s in [*zip(*scores)]]
         
         for score in scores:
-            #plt.plot([*range(len(score))], score, c=plt_light_colors[index])
-            a=1
+            plt.plot([*range(len(score))], score, c=plt_light_colors[index])
             
         plt.plot([*range(len(avg))], avg, c=plt_colors[index], label=agent_labels[index])
         
