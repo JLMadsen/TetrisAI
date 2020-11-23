@@ -13,7 +13,7 @@ Implementerer Tetris etter openAI standarden.
 
 ![mvp](./imgs/tetris.png)
 
-# AI: Pascal
+# AI: Genetisk algoritme
 
 Begynte å lage ai som er basert på "natural selection":
 - Lager x initielle kandidater
