@@ -23,4 +23,4 @@ Startet uken med å endre til å bruke batches ved trening, siden vi begynte å 
 
 Sliter mye med trening, sammenligner forskjellige treningsmetodet for dqn
 
-![dqn](./imgs/comparison_dqn.png)
+![dqn](./imgs/comparison_73527.png)
