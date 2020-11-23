@@ -4,10 +4,14 @@ import random
 import time
 import torch
 from copy import deepcopy
+import time
+import torch
 
 from Imitation.agent import imitation_agent
 
 from enviorment.tetris import Tetris
+
+from Imitation.agent import imitation_agent
 
 from nat_selection.model import Model
 

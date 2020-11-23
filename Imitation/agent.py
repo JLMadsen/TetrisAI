@@ -9,6 +9,7 @@ from dqn.modules import Resize, Print_shape
 class imitation_agent(nn.Module):
     def __init__(self, env):
         super(imitation_agent, self).__init__()
+        self.name = 'Imitation'
 
         self.env = env
 

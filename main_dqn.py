@@ -13,7 +13,7 @@ from dqn.agent import DQN
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env = Tetris({
-     'reduced_shapes': 1
+     'reduced_shapes': 0
     ,'reduced_grid': 0
 })
 
