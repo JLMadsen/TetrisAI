@@ -2,6 +2,10 @@
   <img src="./rapporter/imgs/tetrisAI.png" height=150 />
 </p>
 
+![demo](./rapporter/imgs/demo.gif)
+
+<img src="./rapporter/imgs/demo.gif" width="250" height="250"/>
+
 ## Genetic algorithm vs Imitation + DQN
 
 <p align="center">
