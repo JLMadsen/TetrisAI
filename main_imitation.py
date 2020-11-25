@@ -8,7 +8,7 @@ from Imitation.agent import *
 from nat_selection.agent import Agent as NatAgent
 from nat_selection.model import Model
 
-env = Tetris({'reduced_shapes': 0})
+env = Tetris({'reduced_shapes': 1}, 'Imitation')
 model = imitation_agent(env)
 
 learning_rate = 0.1
@@ -59,8 +59,8 @@ def main(manual=0):
         
         for e in range(epoch):
             
-            if not e%500:
-                print(e)
+            #if not e%500:
+                #print(e)
             
             score = 0
             state, reward, done, info = env.reset()
@@ -73,7 +73,7 @@ def main(manual=0):
                 env.render()
                 #time.sleep(0.1 if e < 2 else 0)
                 
-                if reward:
+                if reward and 0:
                     print(reward, e)
 
                 score += reward
@@ -81,7 +81,7 @@ def main(manual=0):
             if score != 0:
                 scores.append(score)
                 
-        print(scores)
+        #print(scores)
 
 
 def generate_data(moves):
@@ -102,6 +102,6 @@ def generate_data(moves):
 if __name__ == "__main__":
     #train()
     #model.save_weights()
-    model.load_weights("")
+    model.load_weights('_10k_01_nat1')
     main()
     #generate_data(400)

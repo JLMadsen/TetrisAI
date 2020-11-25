@@ -6,7 +6,7 @@ from nat_selection.model import Model
 import time
 from enviorment.tetris import Tetris
 
-env = Tetris({'reduced_grid': 0, 'reduced_shapes': 0})
+env = Tetris({'reduced_grid': 0, 'reduced_shapes': 0}, 'Genetic algorithm')
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
 
             for a in action:
                 env.render()
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 state, reward, done, info = env.step(a)
                 score += reward
 

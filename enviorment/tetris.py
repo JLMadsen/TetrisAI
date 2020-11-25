@@ -24,8 +24,9 @@ from enviorment.reducedshapes import ReducedShape
 
 class Tetris():
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, title='Tetris'):
         
+        self.title = title
         self.config = {
             'hard_drop': 1,        # Action.DOWN goes all the way down
             'reduced_shapes': 0,   # Replace shapes with reduced shapes
@@ -58,8 +59,6 @@ class Tetris():
         else:
             self.game_rows = 10
             self.game_columns = 10
-        
-
 
         self.start_position = [0, 3]
         self.position = copy.deepcopy(self.start_position)
@@ -342,11 +341,16 @@ class Tetris():
         
         attempt_text = self.font.render(("Attempts: "+ str(self.attempt)), 1, Color.WHITE)
         attempt_textRect = attempt_text.get_rect() 
-        attempt_textRect.center = (self.info_margin_left, 280) 
+        attempt_textRect.center = (self.info_margin_left, 280)
         
+        algo_text = self.font.render(self.title, 1, Color.WHITE)
+        algo_textRect = algo_text.get_rect() 
+        algo_textRect.center = (self.info_margin_left, 320)
+                
         self.screen.blit(score_text, score_textRect) 
         self.screen.blit(highscore_text, highscore_textRect)
         self.screen.blit(attempt_text, attempt_textRect)
+        self.screen.blit(algo_text, algo_textRect)
         
         action = 0
         done = False
@@ -388,7 +392,7 @@ class Tetris():
 
         self.pg = pg
         pg.init()
-        pg.display.set_caption('TETRIS')
+        pg.display.set_caption(self.title)
 
         self.screen = pg.display.set_mode((self.window_height, self.window_width))
         self.clock = pg.time.Clock()

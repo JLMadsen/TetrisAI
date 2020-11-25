@@ -13,9 +13,9 @@ from dqn.agent import DQN
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 env = Tetris({
-     'reduced_shapes': 0
+     'reduced_shapes': 1
     ,'reduced_grid': 0
-})
+}, 'DQN')
 
 agent = DQN(env)#.to(device)
 
@@ -77,7 +77,7 @@ def train(plot=0, epoch=60_000, suff=''):
 
 import torch
 def run(weight='', attempts=300):
-    print(header('Run trained model'))
+    #print(header('Run trained model'))
     scores = []
     agent.load_weights(weight)
     agent.epsilon = -1
@@ -95,10 +95,10 @@ def run(weight='', attempts=300):
                 #print(warning(env.actionName(action)))
                 if reward:
                     score += reward
-                    print(green('CLEARED LINE'))
+                    #print(green('CLEARED LINE'))
                 env.render()
                 #time.sleep(0.001)
-            print(fail('RESET'))
+            #print(fail('RESET'))
             scores.append(score)
     # break loop on CTRL C or quit pygame window
     except KeyboardInterrupt:
@@ -106,7 +106,7 @@ def run(weight='', attempts=300):
     except SystemExit:
         pass
             
-    if scores:
+    if scores and 0:
         plt.plot([*range(len(scores))], scores, label='score')
         plt.legend()
         plt.text(0.2, .94, 'Average score = '+ str(round(sum(scores)/len(scores), 2)), fontsize=12, transform=plt.gcf().transFigure)
@@ -119,11 +119,11 @@ if __name__ == "__main__":
     
     try:
         
-        agent.load_weights('_10k_01_nat1')
+        #agent.load_weights('_10k_01_nat1')
         #agent.upper_epsilon = agent.epsilon = .2
-        train(plot, epoch, '_imitation_3') # 1400
+        #train(plot, epoch, '_imitation_3') # 1400
         
-        #run('_60k_2')
+        run('_60k_imitation_3')
         
     except KeyboardInterrupt:
         agent.save_weights('_quit')
