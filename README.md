@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="./rapporter/imgs/demo.gif" width="400"/>
+  <img src="https://i.imgur.com/zZnZpdI.gif"/>
 </p>
 
 ## Genetic algorithm vs Imitation + DQN
