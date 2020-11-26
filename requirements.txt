@@ -1,4 +1,4 @@
 pygame
-numpy
+numpy==1.19.3
 pathlib
 matplotlib
