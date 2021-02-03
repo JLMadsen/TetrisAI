@@ -2,6 +2,8 @@
   <img src="./rapporter/imgs/tetrisAI.png" height=150 />
 </p>
 
+Full report in norwegian <a href="https://denlurevind.com/content/dqn.pdf">here.</a>
+
 <p align="center">
   <img src="https://i.imgur.com/zZnZpdI.gif"/>
 </p>
