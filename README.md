@@ -51,7 +51,7 @@ env = Tetris()
 
 # Agent can either be nat_select model, DQN, Imitation, or custom.
 # agent = imitation_agent(env)
-# agent = Model(env)
+# agent = Model()
 agent = DQN(env)
 
 total_score = 0

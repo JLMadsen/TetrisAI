@@ -4,22 +4,18 @@ import random
 import time
 import torch
 from copy import deepcopy
-import time
-import torch
-
-from Imitation.agent import imitation_agent
 
 from enviorment.tetris import Tetris
 
 from Imitation.agent import imitation_agent
-
 from nat_selection.model import Model
-
 from dqn.agent import DQN
 
+# Colors for plotting
 plt_colors = ['r', 'g', 'b', 'm', 'c']
 plt_light_colors = ['pink', 'palegreen', 'powderblue', 'thistle', 'lightcyan']
 
+# Random agent to show difference between trained models and random.
 class randomAgent:
     def __init__(self, env):
         self.env = env
@@ -47,24 +43,27 @@ def main():
     agent4 = Model([-0.8995652940240592, 0.06425443268253492, -0.3175211096545741, -0.292974392382306])
     
     agent5 = randomAgent(env)
-        
-    agents = [agent5, agent3, agent1]
+    
+    # which agents to test.
+    agents = [agent1, agent2, agent5]
     agent_labels = [a.name for a in agents]
     agent_scores = {}
     
-    sample = 200
+    # how samples of each agent
+    sample = 30
     
     agents = [deepcopy(agents) for _ in range(sample)]
+
+    # flatten list
     agents = [a for n in agents for a in n]
     
     for agent in agents:
         current_agent = agent.name
+        print('Sampling', current_agent.ljust(10), '| Progress', str(agents.index(agent)).rjust(2), '/', len(agents))
         
-        max_actions = 4000
+        max_actions = 1000
         actions = 0
-        # uncomment to seed each agent.
-        #random.seed(420)
-        #np.random.seed(420)
+
         if current_agent in agent_scores.keys():
             agent_scores[current_agent].append([])
         else:
@@ -82,6 +81,7 @@ def main():
                 if actions >= max_actions:
                     break
                 
+                # Get action from agent spesific method.
                 if isinstance(agent, Model):
                     action = agent.best(env)
                 elif isinstance(agent, imitation_agent):
@@ -89,6 +89,7 @@ def main():
                 else:
                     action = agent.policy(state)
                     
+                # If agent returns list of actions to perform.
                 if isinstance(action, list):
                     for a in action:
                         state, reward, done, info = env.step(a)
@@ -99,11 +100,9 @@ def main():
                     agent_scores[current_agent][-1].append(reward)
                     actions+=1
 
-    print(agent_scores)
+    # Plot scores.    
     for agent, scores in agent_scores.items():
-
         index = agent_labels.index(agent)
-                
         scores = [*map(lambda x: np.cumsum(x).tolist(), scores)]
 
         avg = [sum(s)/len(s) for s in [*zip(*scores)]]
@@ -118,7 +117,9 @@ def main():
     
     plt.legend()
     plt.text(0.15, .9, 'Spill = '+ str(sample), fontsize=12, transform=plt.gcf().transFigure)
-    plt.savefig('./rapporter/imgs/comparison_'+str(time.time()).split(".")[0][-5:]+'.png')
+    
+    # uncomment to save image
+    #plt.savefig('./rapporter/imgs/comparison_'+str(time.time()).split(".")[0][-5:]+'.png')
     plt.show()
         
 
